@@ -17,7 +17,7 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Entity
-@Table(name = "bets")
+@Table(name = "bet")
 data class BetEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

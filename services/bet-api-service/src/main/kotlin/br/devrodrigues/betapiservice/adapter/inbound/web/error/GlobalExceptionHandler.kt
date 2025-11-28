@@ -1,6 +1,8 @@
 package br.devrodrigues.betapiservice.adapter.inbound.web.error
 
 import br.devrodrigues.betapiservice.application.validation.BetValidationException
+import br.devrodrigues.betapiservice.application.validation.GameValidationException
+import br.devrodrigues.betapiservice.application.validation.ValidationError
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,12 +17,28 @@ class GlobalExceptionHandler {
         ex: BetValidationException,
         request: HttpServletRequest
     ): ResponseEntity<ValidationErrorResponse> {
+        return buildValidationResponse("Validação da aposta falhou", ex.errors, request)
+    }
+
+    @ExceptionHandler(GameValidationException::class)
+    fun handleGameValidation(
+        ex: GameValidationException,
+        request: HttpServletRequest
+    ): ResponseEntity<ValidationErrorResponse> {
+        return buildValidationResponse("Validação do jogo falhou", ex.errors, request)
+    }
+
+    private fun buildValidationResponse(
+        message: String,
+        errors: List<ValidationError>,
+        request: HttpServletRequest
+    ): ResponseEntity<ValidationErrorResponse> {
         val status = HttpStatus.UNPROCESSABLE_ENTITY
         val body = ValidationErrorResponse(
             status = status.value(),
-            message = "Validação da aposta falhou",
+            message = message,
             path = request.requestURI,
-            errors = ex.errors
+            errors = errors
         )
         return ResponseEntity.status(status).body(body)
     }

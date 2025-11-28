@@ -4,7 +4,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 data class Game(
-    val id: Long,
+    val id: Long? = null,
     val externalId: Long,
     val homeTeam: String,
     val awayTeam: String,

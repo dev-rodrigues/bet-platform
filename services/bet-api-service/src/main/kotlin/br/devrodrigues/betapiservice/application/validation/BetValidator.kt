@@ -3,20 +3,20 @@ package br.devrodrigues.betapiservice.application.validation
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.BetRequestDto
 import br.devrodrigues.betapiservice.application.validation.ValidationError
 import br.devrodrigues.betapiservice.domain.model.Game
-import br.devrodrigues.betapiservice.domain.port.out.GameQueryPort
+import br.devrodrigues.betapiservice.domain.port.out.GameRepository
 import java.time.Clock
 import java.time.Instant
 import org.springframework.stereotype.Component
 
 @Component
 class BetValidator(
-    private val gameQueryPort: GameQueryPort,
+    private val gameRepository: GameRepository,
     private val clock: Clock = Clock.systemUTC()
 ) {
 
     fun validateAndGetGame(request: BetRequestDto): Game {
         val errors = mutableListOf<ValidationError>()
-        val game = gameQueryPort.findByExternalId(request.gameId)
+        val game = gameRepository.findByExternalId(request.gameId)
 
         if (game == null) {
             errors.add(

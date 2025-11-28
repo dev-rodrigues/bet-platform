@@ -17,7 +17,7 @@ class BetService(
         val game = betValidator.validateAndGetGame(request)
         val bet = Bet(
             userId = request.userId,
-            gameId = game.id,
+            gameId = requireNotNull(game.id) { "Game id is required" },
             selection = request.selection,
             stake = request.stake,
             odds = request.odds,

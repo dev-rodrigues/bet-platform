@@ -57,3 +57,16 @@ fun GameEntity.toDomain(): Game =
         status = status,
         matchDate = matchDate
     )
+
+fun Game.toEntity(): GameEntity =
+    GameEntity(
+        id = id,
+        externalId = externalId,
+        homeTeam = homeTeam,
+        awayTeam = awayTeam,
+        startTime = startTime,
+        homeScore = homeScore,
+        awayScore = awayScore,
+        status = status,
+        matchDate = matchDate
+    )
