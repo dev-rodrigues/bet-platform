@@ -2,6 +2,7 @@ package br.devrodrigues.betapiservice.adapter.inbound.web.dto
 
 import br.devrodrigues.betapiservice.domain.model.Bet
 import br.devrodrigues.betapiservice.domain.model.BetStatus
+import org.springframework.hateoas.Link
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -13,7 +14,8 @@ data class BetResponseDto(
     val stake: BigDecimal,
     val odds: BigDecimal,
     val status: BetStatus,
-    val createdAt: Instant
+    val createdAt: Instant,
+    val links: List<Link> = emptyList()
 )
 
 fun Bet.toResponseDto(): BetResponseDto =

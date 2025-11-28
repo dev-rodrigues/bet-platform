@@ -22,11 +22,43 @@ interface BetControllerApi {
 
     @Operation(
         summary = "Cria uma nova aposta",
-        description = "Registrar uma aposta na plataforma. Enviar um POST para /bets (ex.: http://localhost:8080/bets) e receber o objeto persistido."
+        description = "Registrar uma aposta na plataforma. Enviar um POST para /bets (ex.: http://localhost:8080/bets) e receber o objeto persistido com link HATEOAS para consulta."
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "201", description = "Aposta criada com sucesso"),
+            ApiResponse(
+                responseCode = "201",
+                description = "Aposta criada com sucesso",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = BetResponseDto::class),
+                        examples = [
+                            ExampleObject(
+                                name = "Criada",
+                                value = """
+                                {
+                                  "id": 123,
+                                  "userId": 42,
+                                  "gameId": 987,
+                                  "selection": "Team A",
+                                  "stake": 100.00,
+                                  "odds": 2.25,
+                                  "status": "PENDING",
+                                  "createdAt": "2024-01-01T12:00:00Z",
+                                  "links": [
+                                    {
+                                      "rel": "self",
+                                      "href": "http://localhost:8080/bets/123"
+                                    }
+                                  ]
+                                }
+                                """
+                            )
+                        ]
+                    )
+                ]
+            ),
             ApiResponse(responseCode = "400", description = "Payload inválido")
         ]
     )
