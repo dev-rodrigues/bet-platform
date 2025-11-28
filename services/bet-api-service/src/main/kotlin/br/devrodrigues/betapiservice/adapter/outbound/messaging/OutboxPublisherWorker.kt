@@ -1,7 +1,6 @@
 package br.devrodrigues.betapiservice.adapter.outbound.messaging
 
 import br.devrodrigues.betapiservice.domain.model.OutboxEvent
-import br.devrodrigues.betapiservice.domain.model.OutboxStatus
 import br.devrodrigues.betapiservice.domain.port.out.OutboxRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -11,14 +10,14 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-class OutboxPublisher(
+class OutboxPublisherWorker(
     private val outboxRepository: OutboxRepository,
     private val kafkaTemplate: KafkaTemplate<String, String>,
-    @Value("\${app.topics.bet-placed:bet.placed}") private val betPlacedTopic: String,
+    @Value("\${app.topics.bet-placed:bets.placed.v1}") private val betPlacedTopic: String,
     @Value("\${app.outbox.batch-size:100}") private val batchSize: Int
 ) {
 
-    private val logger = LoggerFactory.getLogger(OutboxPublisher::class.java)
+    private val logger = LoggerFactory.getLogger(OutboxPublisherWorker::class.java)
 
     @Scheduled(fixedDelayString = "\${app.outbox.publisher-delay-ms:2000}")
     @Transactional
@@ -28,19 +27,19 @@ class OutboxPublisher(
             return
         }
 
-        val sentIds = mutableListOf<java.util.UUID>()
+        val publishedIds = mutableListOf<java.util.UUID>()
         pending.forEach { event ->
             try {
                 publishEvent(event)
-                sentIds.add(event.id)
+                publishedIds.add(event.id)
             } catch (ex: Exception) {
                 logger.error("Erro ao publicar evento ${event.id}", ex)
-                outboxRepository.markFailed(event.id, ex.message ?: "Erro ao publicar evento")
+                outboxRepository.markError(event.id, ex.message ?: "Erro ao publicar evento")
             }
         }
 
-        if (sentIds.isNotEmpty()) {
-            outboxRepository.markSent(sentIds)
+        if (publishedIds.isNotEmpty()) {
+            outboxRepository.markPublished(publishedIds)
         }
     }
 

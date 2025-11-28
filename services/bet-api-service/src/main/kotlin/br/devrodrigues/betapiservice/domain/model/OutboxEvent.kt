@@ -17,6 +17,6 @@ data class OutboxEvent(
 
 enum class OutboxStatus {
     PENDING,
-    SENT,
-    FAILED
+    PUBLISHED,
+    ERROR
 }

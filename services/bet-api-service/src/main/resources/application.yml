@@ -20,7 +20,7 @@ server:
 
 app:
   topics:
-    bet-placed: bet.placed
+    bet-placed: bets.placed.v1
   outbox:
     batch-size: 100
     publisher-delay-ms: 2000

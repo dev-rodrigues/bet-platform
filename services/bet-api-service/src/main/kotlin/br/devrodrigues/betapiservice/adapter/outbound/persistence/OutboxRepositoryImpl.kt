@@ -27,14 +27,14 @@ class OutboxRepositoryImpl(
         ).map { it.toDomain() }
 
     @Transactional
-    override fun markSent(eventIds: List<UUID>) {
+    override fun markPublished(eventIds: List<UUID>) {
         if (eventIds.isNotEmpty()) {
-            outboxEventJpaRepository.markSent(eventIds)
+            outboxEventJpaRepository.markPublished(eventIds)
         }
     }
 
     @Transactional
-    override fun markFailed(eventId: UUID, error: String) {
-        outboxEventJpaRepository.markFailed(eventId, error.take(2048))
+    override fun markError(eventId: UUID, error: String) {
+        outboxEventJpaRepository.markError(eventId, error.take(2048))
     }
 }

@@ -6,6 +6,6 @@ import br.devrodrigues.betapiservice.domain.model.OutboxStatus
 interface OutboxRepository {
     fun save(event: OutboxEvent): OutboxEvent
     fun findPending(limit: Int): List<OutboxEvent>
-    fun markSent(eventIds: List<java.util.UUID>)
-    fun markFailed(eventId: java.util.UUID, error: String)
+    fun markPublished(eventIds: List<java.util.UUID>)
+    fun markError(eventId: java.util.UUID, error: String)
 }
