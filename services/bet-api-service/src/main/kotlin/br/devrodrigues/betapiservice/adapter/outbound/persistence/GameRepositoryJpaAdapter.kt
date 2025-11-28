@@ -5,6 +5,7 @@ import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.toDomain
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.toEntity
 import br.devrodrigues.betapiservice.domain.model.Game
 import br.devrodrigues.betapiservice.domain.port.out.GameRepository
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -19,7 +20,7 @@ class GameRepositoryJpaAdapter(
         gameJpaRepository.save(game.toEntity()).toDomain()
 
     override fun findPage(page: Int, size: Int): List<Game> =
-        gameJpaRepository.findAll(org.springframework.data.domain.PageRequest.of(page, size))
+        gameJpaRepository.findAll(PageRequest.of(page, size))
             .content
             .map { it.toDomain() }
 }

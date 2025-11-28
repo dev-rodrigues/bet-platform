@@ -18,7 +18,6 @@ class GameService(
 
     fun list(page: Int, size: Int): GamePage {
         val games = gameRepository.findPage(page, size)
-        // TODO: obter total count real quando necessário
         return GamePage(
             content = games,
             page = page,
