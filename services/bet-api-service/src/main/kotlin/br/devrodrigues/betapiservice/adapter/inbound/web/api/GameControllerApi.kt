@@ -2,6 +2,7 @@ package br.devrodrigues.betapiservice.adapter.inbound.web.api
 
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.GameRequestDto
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.GameResponseDto
+import br.devrodrigues.betapiservice.adapter.inbound.web.dto.PageResponse
 import br.devrodrigues.betapiservice.adapter.inbound.web.error.ValidationErrorResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -13,7 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestBody as SpringRequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 
@@ -115,4 +118,50 @@ interface GameControllerApi {
         )
         request: GameRequestDto
     ): ResponseEntity<GameResponseDto>
+
+    @Operation(
+        summary = "Lista jogos paginados",
+        description = "Consulta paginada de jogos via GET /games. Informe page e size (ex.: /games?page=0&size=20)."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Página de jogos",
+        content = [
+            Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = PageResponse::class),
+                examples = [
+                    ExampleObject(
+                        name = "Página",
+                        value = """
+                        {
+                          "content": [
+                            {
+                              "id": 1,
+                              "externalId": 987,
+                              "homeTeam": "Team A",
+                              "awayTeam": "Team B",
+                              "startTime": "2024-12-01T15:00:00Z",
+                              "homeScore": null,
+                              "awayScore": null,
+                              "status": "SCHEDULED",
+                              "matchDate": "2024-12-01"
+                            }
+                          ],
+                          "page": 0,
+                          "size": 20,
+                          "totalElements": 1,
+                          "totalPages": 1
+                        }
+                        """
+                    )
+                ]
+            )
+        ]
+    )
+    @GetMapping
+    fun list(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int
+    ): ResponseEntity<PageResponse<GameResponseDto>>
 }

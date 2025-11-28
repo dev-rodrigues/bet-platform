@@ -17,4 +17,9 @@ class GameRepositoryJpaAdapter(
 
     override fun save(game: Game): Game =
         gameJpaRepository.save(game.toEntity()).toDomain()
+
+    override fun findPage(page: Int, size: Int): List<Game> =
+        gameJpaRepository.findAll(org.springframework.data.domain.PageRequest.of(page, size))
+            .content
+            .map { it.toDomain() }
 }

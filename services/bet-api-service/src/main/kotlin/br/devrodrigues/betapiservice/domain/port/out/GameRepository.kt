@@ -5,4 +5,5 @@ import br.devrodrigues.betapiservice.domain.model.Game
 interface GameRepository {
     fun findByExternalId(externalId: Long): Game?
     fun save(game: Game): Game
+    fun findPage(page: Int, size: Int): List<Game>
 }
