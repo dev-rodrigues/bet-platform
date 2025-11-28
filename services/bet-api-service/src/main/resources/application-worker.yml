@@ -1,0 +1,12 @@
+spring:
+  main:
+    web-application-type: none
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+app:
+  outbox:
+    batch-size: 100
+    publisher-delay-ms: 2000
