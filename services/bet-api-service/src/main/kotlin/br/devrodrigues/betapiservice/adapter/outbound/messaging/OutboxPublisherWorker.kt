@@ -4,12 +4,14 @@ import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.config.AppProperties
 import br.devrodrigues.betapiservice.domain.port.out.OutboxRepository
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
+@Profile("worker")
 class OutboxPublisherWorker(
     private val outboxRepository: OutboxRepository,
     private val kafkaTemplate: KafkaTemplate<String, String>,
