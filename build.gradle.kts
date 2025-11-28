@@ -1,9 +1,13 @@
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.testing.Test
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
-    kotlin("jvm") version "2.2.21" apply false
-    kotlin("plugin.spring") version "2.2.21" apply false
-    id("org.springframework.boot") version "4.0.0" apply false
+    kotlin("jvm") version "1.9.24" apply false
+    kotlin("plugin.spring") version "1.9.24" apply false
+    id("org.springframework.boot") version "3.3.5" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
 }
 
@@ -51,11 +55,13 @@ configure(serviceProjects) {
     apply(plugin = "org.springframework.boot")
 
     dependencies {
-        add("implementation", "org.springframework.boot:spring-boot-starter-webmvc")
+        add("implementation", "org.springframework.boot:spring-boot-starter-web")
+        add("implementation", "org.springframework.boot:spring-boot-starter-data-jpa")
+        add("implementation", "org.springframework.boot:spring-boot-starter-actuator")
+        add("implementation", "org.springframework.kafka:spring-kafka")
         add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin")
         add("implementation", "org.jetbrains.kotlin:kotlin-reflect")
-        add("testImplementation", "org.springframework.boot:spring-boot-starter-webmvc-test")
-        add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit5")
+        add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
         add("testRuntimeOnly", "org.junit.platform:junit-platform-launcher")
     }
 }
