@@ -4,6 +4,7 @@ import br.devrodrigues.betapiservice.adapter.inbound.web.api.GameControllerApi
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.GameRequestDto
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.GameResponseDto
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.PageResponse
+import br.devrodrigues.betapiservice.adapter.inbound.web.dto.toCommand
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.toResponseDto
 import br.devrodrigues.betapiservice.application.service.GameService
 import org.springframework.http.HttpStatus
@@ -18,7 +19,7 @@ class GameController(
 ) : GameControllerApi {
 
     override fun create(request: GameRequestDto): ResponseEntity<GameResponseDto> {
-        val game = gameService.create(request)
+        val game = gameService.create(request.toCommand())
         return ResponseEntity.status(HttpStatus.CREATED).body(game.toResponseDto())
     }
 

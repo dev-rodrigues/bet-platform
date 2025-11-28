@@ -1,7 +1,6 @@
 package br.devrodrigues.betapiservice.application.service
 
-import br.devrodrigues.betapiservice.adapter.inbound.web.dto.BetRequestDto
-import br.devrodrigues.betapiservice.application.service.OutboxService
+import br.devrodrigues.betapiservice.application.service.dto.CreateBetCommand
 import br.devrodrigues.betapiservice.application.validation.BetValidator
 import br.devrodrigues.betapiservice.domain.model.Bet
 import br.devrodrigues.betapiservice.domain.model.BetStatus
@@ -17,14 +16,14 @@ class BetService(
 ) {
 
     @Transactional
-    fun create(request: BetRequestDto): Bet {
-        val game = betValidator.validateAndGetGame(request)
+    fun create(command: CreateBetCommand): Bet {
+        val game = betValidator.validateAndGetGame(command)
         val bet = Bet(
-            userId = request.userId,
+            userId = command.userId,
             gameId = requireNotNull(game.id) { "Game id is required" },
-            selection = request.selection,
-            stake = request.stake,
-            odds = request.odds,
+            selection = command.selection,
+            stake = command.stake,
+            odds = command.odds,
             status = BetStatus.PENDING
         )
         val saved = betRepository.save(bet)

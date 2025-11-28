@@ -1,5 +1,6 @@
 package br.devrodrigues.betapiservice.adapter.inbound.web.dto
 
+import br.devrodrigues.betapiservice.application.service.dto.CreateBetCommand
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -17,4 +18,12 @@ data class BetRequestDto(
     val stake: BigDecimal,
     @field:NotNull @field:DecimalMin("1.01")
     val odds: BigDecimal
+)
+
+fun BetRequestDto.toCommand() = CreateBetCommand(
+    userId = userId,
+    gameId = gameId,
+    selection = selection,
+    stake = stake,
+    odds = odds
 )

@@ -1,6 +1,6 @@
 package br.devrodrigues.betapiservice.application.service
 
-import br.devrodrigues.betapiservice.adapter.inbound.web.dto.GameRequestDto
+import br.devrodrigues.betapiservice.application.service.dto.CreateGameCommand
 import br.devrodrigues.betapiservice.application.service.dto.GamePage
 import br.devrodrigues.betapiservice.application.validation.GameValidationException
 import br.devrodrigues.betapiservice.application.validation.ValidationError
@@ -27,28 +27,28 @@ class GameService(
         )
     }
 
-    fun create(request: GameRequestDto): Game {
-        val existing = gameRepository.findByExternalId(request.externalId)
+    fun create(command: CreateGameCommand): Game {
+        val existing = gameRepository.findByExternalId(command.externalId)
         if (existing != null) {
             throw GameValidationException(
                 listOf(
                     ValidationError(
                         code = "game.duplicateExternalId",
-                        message = "Jogo com externalId ${request.externalId} já existe"
+                        message = "Jogo com externalId ${command.externalId} já existe"
                     )
                 )
             )
         }
 
         val game = Game(
-            externalId = request.externalId,
-            homeTeam = request.homeTeam,
-            awayTeam = request.awayTeam,
-            startTime = request.startTime,
-            homeScore = request.homeScore,
-            awayScore = request.awayScore,
-            status = request.status ?: GameStatus.SCHEDULED,
-            matchDate = LocalDate.ofInstant(request.startTime, ZoneOffset.UTC)
+            externalId = command.externalId,
+            homeTeam = command.homeTeam,
+            awayTeam = command.awayTeam,
+            startTime = command.startTime,
+            homeScore = command.homeScore,
+            awayScore = command.awayScore,
+            status = command.status ?: GameStatus.SCHEDULED,
+            matchDate = LocalDate.ofInstant(command.startTime, ZoneOffset.UTC)
         )
         return gameRepository.save(game)
     }
