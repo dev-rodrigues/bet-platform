@@ -27,10 +27,13 @@
   # ou dentro do container
   make psql
   ```
-- **Redpanda (Kafka)**: broker em `localhost:9092`, Admin API em `localhost:9644` (saúde/metrics).
-- **Redpanda Console (UI)**: `http://localhost:8080` para visualizar tópicos, mensagens e consumer groups.
+- **Redpanda (Kafka)**:
+  - Broker para clientes na máquina host: `localhost:19092` (ex.: `KAFKA_BOOTSTRAP_SERVERS=localhost:19092`).
+  - Listener interno (containers): `redpanda:9092`.
+  - Admin API (health/metrics, sem UI): `localhost:9644`.
+- **Redpanda Console (UI)**: painel web em `http://localhost:8080` para tópicos, mensagens e consumer groups (sobe via `make up`).
+- **Swagger do bet-api-service**: com o serviço rodando (`./gradlew :services:bet-api-service:bootRun`), acesse `http://localhost:8080/swagger-ui/index.html` para a documentação e testes.
 
 ## Estrutura
 - `infra/docker-compose.yaml` define o stack local.
 - `Makefile` na raiz facilita comandos `up/down/logs/ps/psql`.
-
