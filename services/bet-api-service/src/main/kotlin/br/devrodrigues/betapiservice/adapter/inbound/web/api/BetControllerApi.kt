@@ -2,6 +2,7 @@ package br.devrodrigues.betapiservice.adapter.inbound.web.api
 
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.BetRequestDto
 import br.devrodrigues.betapiservice.adapter.inbound.web.dto.BetResponseDto
+import br.devrodrigues.betapiservice.adapter.inbound.web.error.ValidationErrorResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
@@ -59,7 +60,36 @@ interface BetControllerApi {
                     )
                 ]
             ),
-            ApiResponse(responseCode = "400", description = "Payload inválido")
+            ApiResponse(responseCode = "400", description = "Payload inválido"),
+            ApiResponse(
+                responseCode = "422",
+                description = "Regras de negócio quebradas",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ValidationErrorResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "Janela fechada",
+                                value = """
+                                {
+                                  "status": 422,
+                                  "message": "Validação da aposta falhou",
+                                  "path": "/bets",
+                                  "errors": [
+                                    {
+                                      "code": "betting.window.closed",
+                                      "message": "Apostas encerradas para o jogo 987"
+                                    }
+                                  ],
+                                  "timestamp": "2024-01-01T12:00:01Z"
+                                }
+                                """
+                            )
+                        ]
+                    )
+                ]
+            )
         ]
     )
     @PostMapping

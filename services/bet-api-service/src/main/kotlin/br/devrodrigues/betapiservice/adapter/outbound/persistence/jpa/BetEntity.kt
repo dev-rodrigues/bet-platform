@@ -6,9 +6,12 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import java.math.BigDecimal
 import java.time.Instant
@@ -21,8 +24,9 @@ data class BetEntity(
     val id: Long? = null,
     @Column(nullable = false)
     val userId: Long,
-    @Column(nullable = false)
-    val gameId: Long,
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "game_id", nullable = false)
+    val game: GameEntity,
     @Column(nullable = false, length = 32)
     val selection: String,
     @Column(nullable = false, precision = 14, scale = 2)
@@ -36,11 +40,11 @@ data class BetEntity(
     val createdAt: Instant
 )
 
-fun Bet.toEntity(): BetEntity =
+fun Bet.toEntity(gameEntity: GameEntity): BetEntity =
     BetEntity(
         id = id,
         userId = userId,
-        gameId = gameId,
+        game = gameEntity,
         selection = selection,
         stake = stake,
         odds = odds,
@@ -52,7 +56,7 @@ fun BetEntity.toDomain(): Bet =
     Bet(
         id = id,
         userId = userId,
-        gameId = gameId,
+        gameId = game.id ?: error("Game id is required"),
         selection = selection,
         stake = stake,
         odds = odds,

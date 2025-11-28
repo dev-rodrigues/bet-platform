@@ -8,9 +8,11 @@ import br.devrodrigues.betapiservice.application.service.BetService
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@RequestMapping("/bets")
 class BetController(private val betService: BetService) : BetControllerApi {
 
     override fun create(request: BetRequestDto): ResponseEntity<BetResponseDto> {
