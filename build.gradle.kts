@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 plugins {
     kotlin("jvm") version "1.9.24" apply false
     kotlin("plugin.spring") version "1.9.24" apply false
+    kotlin("plugin.jpa") version "1.9.24" apply false
     id("org.springframework.boot") version "3.3.5" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
 }
@@ -52,6 +53,7 @@ subprojects {
 val serviceProjects = subprojects.filter { it.path.startsWith(":services:") }
 configure(serviceProjects) {
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+    apply(plugin = "org.jetbrains.kotlin.plugin.jpa")
     apply(plugin = "org.springframework.boot")
 
     dependencies {
@@ -63,6 +65,7 @@ configure(serviceProjects) {
         add("implementation", "org.jetbrains.kotlin:kotlin-reflect")
         add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
         add("testRuntimeOnly", "org.junit.platform:junit-platform-launcher")
+        add("runtimeOnly", "org.postgresql:postgresql")
     }
 }
 

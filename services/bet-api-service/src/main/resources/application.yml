@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: bet-api-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/betting
+    username: betting
+    password: betting
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  kafka:
+    bootstrap-servers: localhost:9092
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
