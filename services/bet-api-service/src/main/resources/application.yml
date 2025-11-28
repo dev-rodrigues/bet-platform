@@ -22,7 +22,7 @@ app:
   topics:
     bet-placed: bet.placed
   outbox:
-    batch-size: 10
+    batch-size: 100
     publisher-delay-ms: 2000
 
 management:

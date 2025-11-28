@@ -15,7 +15,7 @@ class OutboxPublisher(
     private val outboxRepository: OutboxRepository,
     private val kafkaTemplate: KafkaTemplate<String, String>,
     @Value("\${app.topics.bet-placed:bet.placed}") private val betPlacedTopic: String,
-    @Value("\${app.outbox.batch-size:10}") private val batchSize: Int
+    @Value("\${app.outbox.batch-size:100}") private val batchSize: Int
 ) {
 
     private val logger = LoggerFactory.getLogger(OutboxPublisher::class.java)
