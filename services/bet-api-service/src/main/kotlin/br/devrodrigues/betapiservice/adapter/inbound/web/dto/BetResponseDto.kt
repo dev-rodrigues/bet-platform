@@ -1,11 +1,11 @@
-package br.devrodrigues.betapiservice.web
+package br.devrodrigues.betapiservice.adapter.inbound.web.dto
 
-import br.devrodrigues.betapiservice.domain.Bet
-import br.devrodrigues.betapiservice.domain.BetStatus
+import br.devrodrigues.betapiservice.domain.model.Bet
+import br.devrodrigues.betapiservice.domain.model.BetStatus
 import java.math.BigDecimal
 import java.time.Instant
 
-data class BetResponse(
+data class BetResponseDto(
     val id: Long,
     val userId: Long,
     val gameId: Long,
@@ -16,8 +16,8 @@ data class BetResponse(
     val createdAt: Instant
 )
 
-fun Bet.toResponse(): BetResponse =
-    BetResponse(
+fun Bet.toResponseDto(): BetResponseDto =
+    BetResponseDto(
         id = requireNotNull(id),
         userId = userId,
         gameId = gameId,

@@ -1,4 +1,4 @@
-package br.devrodrigues.betapiservice.web
+package br.devrodrigues.betapiservice.adapter.inbound.web.dto
 
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import java.math.BigDecimal
 
-data class BetRequest(
+data class BetRequestDto(
     @field:NotNull @field:Positive
     val userId: Long,
     @field:NotNull @field:Positive

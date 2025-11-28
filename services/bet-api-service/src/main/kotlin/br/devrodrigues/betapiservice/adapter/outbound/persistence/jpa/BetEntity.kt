@@ -1,5 +1,7 @@
-package br.devrodrigues.betapiservice.domain
+package br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa
 
+import br.devrodrigues.betapiservice.domain.model.Bet
+import br.devrodrigues.betapiservice.domain.model.BetStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -13,7 +15,7 @@ import java.time.Instant
 
 @Entity
 @Table(name = "bets")
-data class Bet(
+data class BetEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -29,12 +31,31 @@ data class Bet(
     val odds: BigDecimal,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 24)
-    val status: BetStatus = BetStatus.PENDING,
+    val status: BetStatus,
     @Column(nullable = false)
-    val createdAt: Instant = Instant.now()
+    val createdAt: Instant
 )
 
-enum class BetStatus {
-    PENDING,
-    SETTLED
-}
+fun Bet.toEntity(): BetEntity =
+    BetEntity(
+        id = id,
+        userId = userId,
+        gameId = gameId,
+        selection = selection,
+        stake = stake,
+        odds = odds,
+        status = status,
+        createdAt = createdAt
+    )
+
+fun BetEntity.toDomain(): Bet =
+    Bet(
+        id = id,
+        userId = userId,
+        gameId = gameId,
+        selection = selection,
+        stake = stake,
+        odds = odds,
+        status = status,
+        createdAt = createdAt
+    )
