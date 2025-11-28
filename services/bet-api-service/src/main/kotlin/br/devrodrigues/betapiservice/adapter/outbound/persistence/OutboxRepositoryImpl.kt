@@ -6,7 +6,6 @@ import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.toEntity
 import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.domain.model.OutboxStatus
 import br.devrodrigues.betapiservice.domain.port.out.OutboxRepository
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -21,10 +20,9 @@ class OutboxRepositoryImpl(
         outboxEventJpaRepository.save(event.toEntity()).toDomain()
 
     override fun findPending(limit: Int): List<OutboxEvent> =
-        outboxEventJpaRepository.findByStatusOrderByCreatedAtAsc(
-            OutboxStatus.PENDING,
-            PageRequest.of(0, limit)
-        ).map { it.toDomain() }
+        outboxEventJpaRepository
+            .findPendingForUpdate(OutboxStatus.PENDING.name, limit)
+            .map { it.toDomain() }
 
     @Transactional
     override fun markPublished(eventIds: List<UUID>) {
