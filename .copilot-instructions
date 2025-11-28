@@ -1,5 +1,0 @@
-# Instruções locais para GitHub Copilot
-
-- Sempre gerar mensagens de commit em português do Brasil.
-- Use o padrão Conventional Commits (feat, fix, chore, refactor, etc).
-- Seja claro, direto e sucinto.
