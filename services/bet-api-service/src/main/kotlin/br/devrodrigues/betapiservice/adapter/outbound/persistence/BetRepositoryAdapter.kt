@@ -9,7 +9,7 @@ import br.devrodrigues.betapiservice.domain.port.out.BetRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-class BetRepositoryImpl(
+class BetRepositoryAdapter(
     private val betJpaRepository: BetJpaRepository,
     private val gameJpaRepository: GameJpaRepository
 ) : BetRepository {

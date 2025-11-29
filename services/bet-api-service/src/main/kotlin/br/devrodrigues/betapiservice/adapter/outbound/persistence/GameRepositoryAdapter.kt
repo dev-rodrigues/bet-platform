@@ -9,7 +9,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Repository
 
 @Repository
-class GameRepositoryJpaAdapter(
+class GameRepositoryAdapter(
     private val gameJpaRepository: GameJpaRepository
 ) : GameRepository {
 

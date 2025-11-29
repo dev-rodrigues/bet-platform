@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Repository
-class OutboxRepositoryImpl(
+class OutboxRepositoryAdapter(
     private val outboxEventJpaRepository: OutboxEventJpaRepository
 ) : OutboxRepository {
 
