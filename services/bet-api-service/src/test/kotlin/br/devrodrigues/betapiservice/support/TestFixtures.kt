@@ -104,4 +104,22 @@ object TestFixtures {
         stake = 10.00,
         odds = 1.50
     )
+
+    fun gamePayload(
+        externalId: Long = 123,
+        homeTeam: String = "Home",
+        awayTeam: String = "Away",
+        startTime: Instant = Instant.now().plusSeconds(86_400),
+        homeScore: Int? = null,
+        awayScore: Int? = null,
+        status: GameStatus? = GameStatus.SCHEDULED
+    ): Map<String, Any?> = mapOf(
+        "externalId" to externalId,
+        "homeTeam" to homeTeam,
+        "awayTeam" to awayTeam,
+        "startTime" to startTime.toString(),
+        "homeScore" to homeScore,
+        "awayScore" to awayScore,
+        "status" to status?.name
+    )
 }
