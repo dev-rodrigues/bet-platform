@@ -3,6 +3,7 @@ package br.devrodrigues.betapiservice.architecture
 import com.tngtech.archunit.base.DescribedPredicate
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.importer.ClassFileImporter
+import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import org.junit.jupiter.api.Test
 
@@ -11,6 +12,7 @@ class ApplicationArchitectureTest {
     private val basePackage = "br.devrodrigues.betapiservice"
 
     private val importedClasses = ClassFileImporter()
+        .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
         .importPackages(basePackage)
 
     @Test
