@@ -1,23 +1,18 @@
 package br.devrodrigues.betapiservice.application.service
 
-import br.devrodrigues.betapiservice.application.service.dto.CreateGameCommand
 import br.devrodrigues.betapiservice.application.validation.GameValidationException
-import br.devrodrigues.betapiservice.application.validation.ValidationError
 import br.devrodrigues.betapiservice.domain.model.Game
 import br.devrodrigues.betapiservice.domain.model.GameStatus
 import br.devrodrigues.betapiservice.domain.port.out.GameRepository
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
+import br.devrodrigues.betapiservice.support.TestFixtures.game
+import br.devrodrigues.betapiservice.support.TestFixtures.gameCommand
+import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 class GameServiceTest {
 
@@ -31,7 +26,7 @@ class GameServiceTest {
 
     @Test
     fun `should create game with default status when not provided`() {
-        val command = createCommand(status = null)
+        val command = gameCommand(status = null)
         val savedSlot = slot<Game>()
         every { gameRepository.findByExternalId(command.externalId) } returns null
         every { gameRepository.save(capture(savedSlot)) } answers { savedSlot.captured.copy(id = 5L) }
@@ -51,17 +46,13 @@ class GameServiceTest {
 
     @Test
     fun `should reject duplicated external id`() {
-        val command = createCommand()
-        every { gameRepository.findByExternalId(command.externalId) } returns Game(
+        val command = gameCommand()
+        every { gameRepository.findByExternalId(command.externalId) } returns game(
             id = 1L,
             externalId = command.externalId,
-            homeTeam = "X",
-            awayTeam = "Y",
             startTime = command.startTime,
-            homeScore = null,
-            awayScore = null,
-            status = GameStatus.SCHEDULED,
-            matchDate = LocalDate.ofInstant(command.startTime, ZoneOffset.UTC)
+            homeTeam = "X",
+            awayTeam = "Y"
         )
 
         assertThrows(GameValidationException::class.java) {
@@ -75,8 +66,8 @@ class GameServiceTest {
     @Test
     fun `list should return page with correct totals`() {
         val games = listOf(
-            sampleGame(id = 1L, externalId = 11L),
-            sampleGame(id = 2L, externalId = 12L)
+            game(id = 1L, externalId = 11L),
+            game(id = 2L, externalId = 12L)
         )
         every { gameRepository.findPage(0, 10) } returns games
 
@@ -88,31 +79,5 @@ class GameServiceTest {
         assertEquals(2, page.totalElements)
         assertEquals(1, page.totalPages)
         verify(exactly = 1) { gameRepository.findPage(0, 10) }
-    }
-
-    private fun createCommand(status: GameStatus? = GameStatus.SCHEDULED): CreateGameCommand =
-        CreateGameCommand(
-            externalId = 123L,
-            homeTeam = "Home",
-            awayTeam = "Away",
-            startTime = Instant.now().plusSeconds(3_600),
-            homeScore = null,
-            awayScore = null,
-            status = status
-        )
-
-    private fun sampleGame(id: Long, externalId: Long): Game {
-        val start = Instant.now().plusSeconds(1_800)
-        return Game(
-            id = id,
-            externalId = externalId,
-            homeTeam = "H$externalId",
-            awayTeam = "A$externalId",
-            startTime = start,
-            homeScore = null,
-            awayScore = null,
-            status = GameStatus.SCHEDULED,
-            matchDate = LocalDate.ofInstant(start, ZoneOffset.UTC)
-        )
     }
 }
