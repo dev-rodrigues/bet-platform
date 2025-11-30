@@ -23,6 +23,10 @@ data class GameEntity(
     val betsCloseAt: Instant,
     @Column(name = "status", nullable = false, length = 50)
     val status: String,
+    @Column(name = "home_score")
+    val homeScore: Int? = null,
+    @Column(name = "away_score")
+    val awayScore: Int? = null,
     @Column(name = "home_team", nullable = false, length = 100)
     val homeTeam: String,
     @Column(name = "away_team", nullable = false, length = 100)
@@ -40,6 +44,8 @@ fun GameEntity.toDomain(): Game =
         startTime = startTime,
         betsCloseAt = betsCloseAt,
         status = status,
+        homeScore = homeScore,
+        awayScore = awayScore,
         homeTeam = homeTeam,
         awayTeam = awayTeam,
         createdAt = createdAt,
@@ -53,6 +59,8 @@ fun Game.toEntity(): GameEntity =
         startTime = startTime,
         betsCloseAt = betsCloseAt,
         status = status,
+        homeScore = homeScore,
+        awayScore = awayScore,
         homeTeam = homeTeam,
         awayTeam = awayTeam,
         createdAt = createdAt,
