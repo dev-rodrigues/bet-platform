@@ -12,6 +12,17 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:19092}
+    consumer:
+      group-id: bet-settlement-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 8082
@@ -20,3 +31,4 @@ app:
   topics:
     game-created: games.created.v1
     matches-result: matches.result.v1
+    matches-result-dlq: matches.result.dlq
