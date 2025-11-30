@@ -1,5 +1,6 @@
 package br.devrodrigues.betsettlementservice.adapter.outbound.persistence.jpa
 
+import br.devrodrigues.betsettlementservice.domain.model.Game
 import jakarta.persistence.*
 import java.time.Instant
 
@@ -31,3 +32,29 @@ data class GameEntity(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: Instant
 )
+
+fun GameEntity.toDomain(): Game =
+    Game(
+        id = requireNotNull(id),
+        externalId = externalId,
+        startTime = startTime,
+        betsCloseAt = betsCloseAt,
+        status = status,
+        homeTeam = homeTeam,
+        awayTeam = awayTeam,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
+
+fun Game.toEntity(): GameEntity =
+    GameEntity(
+        id = id,
+        externalId = externalId,
+        startTime = startTime,
+        betsCloseAt = betsCloseAt,
+        status = status,
+        homeTeam = homeTeam,
+        awayTeam = awayTeam,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
