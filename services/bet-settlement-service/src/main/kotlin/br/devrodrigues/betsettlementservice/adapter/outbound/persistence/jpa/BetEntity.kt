@@ -36,7 +36,15 @@ data class BetEntity(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant,
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant
+    val updatedAt: Instant,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "game_id",
+        insertable = false,
+        updatable = false,
+        foreignKey = ForeignKey(name = "fk_bet_game")
+    )
+    val game: GameEntity? = null
 )
 
 fun BetEntity.toDomain(): Bet =

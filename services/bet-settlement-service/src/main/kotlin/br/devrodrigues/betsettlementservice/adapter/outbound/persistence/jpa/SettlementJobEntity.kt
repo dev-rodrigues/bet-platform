@@ -28,7 +28,15 @@ data class SettlementJobEntity(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: Instant,
     @Column(name = "last_error")
-    val lastError: String? = null
+    val lastError: String? = null,
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "match_id",
+        insertable = false,
+        updatable = false,
+        foreignKey = ForeignKey(name = "fk_settlement_job_game")
+    )
+    val game: GameEntity? = null
 )
 
 fun SettlementJobEntity.toDomain(): SettlementJob =

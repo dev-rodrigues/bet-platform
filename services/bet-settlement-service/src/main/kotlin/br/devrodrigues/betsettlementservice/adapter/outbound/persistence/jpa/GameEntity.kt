@@ -34,7 +34,11 @@ data class GameEntity(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant,
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant
+    val updatedAt: Instant,
+    @OneToMany(mappedBy = "game", fetch = FetchType.LAZY)
+    val bets: List<BetEntity> = emptyList(),
+    @OneToOne(mappedBy = "game", fetch = FetchType.LAZY)
+    val settlementJob: SettlementJobEntity? = null
 )
 
 fun GameEntity.toDomain(): Game =
