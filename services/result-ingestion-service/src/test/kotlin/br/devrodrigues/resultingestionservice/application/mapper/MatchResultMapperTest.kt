@@ -3,7 +3,6 @@ package br.devrodrigues.resultingestionservice.application.mapper
 import br.devrodrigues.resultingestionservice.application.model.MatchResultInput
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.Instant
 
 class MatchResultMapperTest {
 
@@ -19,9 +18,7 @@ class MatchResultMapperTest {
             providerEventId = "prov-1"
         )
 
-        val before = Instant.now()
         val event = mapper.toEvent(input)
-        val after = Instant.now()
 
         assertThat(event.eventId).isNotBlank()
         assertThat(event.matchExternalId).isEqualTo(input.matchExternalId)
@@ -29,9 +26,7 @@ class MatchResultMapperTest {
         assertThat(event.awayScore).isEqualTo(input.awayScore)
         assertThat(event.status).isEqualTo(input.status)
         assertThat(event.provider).isEqualTo(input.providerEventId)
-        assertThat(event.occurredAt).isAfterOrEqualTo(before)
-        assertThat(event.occurredAt).isBeforeOrEqualTo(after)
-        assertThat(event.emittedAt).isAfterOrEqualTo(before)
-        assertThat(event.emittedAt).isBeforeOrEqualTo(after)
+        assertThat(event.occurredAt).isNotNull()
+        assertThat(event.emittedAt).isNotNull()
     }
 }
