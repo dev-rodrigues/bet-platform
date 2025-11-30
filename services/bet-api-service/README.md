@@ -36,10 +36,10 @@ flowchart TD
 - `GET  /games` – lista paginada.
 - `POST /bets` – cria aposta para jogo futuro; valida janela e persiste outbox `BET_PLACED`.
 
-## Evento publicado no Kafka
+## Eventos publicados no Kafka
 
-- Tópico: `app.topics.bet-placed` (ex.: `bets.placed.v1`)
-- Payload (`BET_PLACED`):
+- `BET_PLACED` (tópico `app.topics.bet-placed`, ex.: `bets.placed.v1`)
+  Payload:
   ```json
   {
     "id": 123,
@@ -51,5 +51,20 @@ flowchart TD
     "odds": 2.25,
     "status": "PENDING",
     "createdAt": "2024-01-01T12:00:00Z"
+  }
+  ```
+- `GAME_CREATED` (tópico `app.topics.game-created`, ex.: `games.created.v1`)
+  Payload:
+  ```json
+  {
+    "eventId": "c6e2f9bc-1c53-4d0d-9c5b-1234567890ab",
+    "occurredAt": "2024-01-01T12:00:00Z",
+    "emittedAt": "2024-01-01T12:00:01Z",
+    "gameId": 10,
+    "externalId": 987,
+    "homeTeam": "Team A",
+    "awayTeam": "Team B",
+    "startTime": "2024-01-02T18:00:00Z",
+    "status": "SCHEDULED"
   }
   ```
