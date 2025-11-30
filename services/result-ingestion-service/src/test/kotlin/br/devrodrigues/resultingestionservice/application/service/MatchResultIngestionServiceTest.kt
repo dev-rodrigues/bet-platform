@@ -5,17 +5,14 @@ import br.devrodrigues.resultingestionservice.adapter.inbound.web.dto.ProviderMa
 import br.devrodrigues.resultingestionservice.adapter.inbound.web.dto.toInput
 import br.devrodrigues.resultingestionservice.application.mapper.MatchResultMapper
 import br.devrodrigues.resultingestionservice.application.port.out.MatchesResultPublisher
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 
 class MatchResultIngestionServiceTest {
 
     private val mapper = MatchResultMapper()
-    private val publisher: MatchesResultPublisher = mockk(relaxed = true)
+    private val publisher: MatchesResultPublisher = mock()
     private val service = MatchResultIngestionService(mapper, publisher)
 
     @Test
@@ -28,8 +25,8 @@ class MatchResultIngestionServiceTest {
             providerEventId = "prov-1"
         )
 
-        val capturedEvent = slot<MatchesResultEvent>()
-        every { publisher.publish(capture(capturedEvent)) } returns Unit
+        val eventCaptor = argumentCaptor<MatchesResultEvent>()
+        doNothing().whenever(publisher).publish(any())
 
         val result = service.ingest(request.toInput())
 
@@ -42,12 +39,12 @@ class MatchResultIngestionServiceTest {
         assertThat(result.emittedAt).isNotNull()
         assertThat(result.occurredAt).isNotNull()
 
-        verify { publisher.publish(any()) }
-        assertThat(capturedEvent.isCaptured).isTrue()
-        assertThat(capturedEvent.captured.matchExternalId).isEqualTo(request.matchExternalId)
-        assertThat(capturedEvent.captured.homeScore).isEqualTo(request.homeScore)
-        assertThat(capturedEvent.captured.awayScore).isEqualTo(request.awayScore)
-        assertThat(capturedEvent.captured.status).isEqualTo(request.status)
-        assertThat(capturedEvent.captured.provider).isEqualTo(request.providerEventId)
+        verify(publisher).publish(eventCaptor.capture())
+        val published = eventCaptor.firstValue
+        assertThat(published.matchExternalId).isEqualTo(request.matchExternalId)
+        assertThat(published.homeScore).isEqualTo(request.homeScore)
+        assertThat(published.awayScore).isEqualTo(request.awayScore)
+        assertThat(published.status).isEqualTo(request.status)
+        assertThat(published.provider).isEqualTo(request.providerEventId)
     }
 }
