@@ -8,7 +8,8 @@ import br.devrodrigues.betapiservice.domain.model.OutboxStatus
 import br.devrodrigues.betapiservice.domain.port.out.OutboxRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
+import java.time.Instant
+import java.util.*
 
 @Repository
 class OutboxRepositoryAdapter(
@@ -27,12 +28,20 @@ class OutboxRepositoryAdapter(
     @Transactional
     override fun markPublished(eventIds: List<UUID>) {
         if (eventIds.isNotEmpty()) {
-            outboxEventJpaRepository.markPublished(eventIds)
+            val processedAt = Instant.now()
+            outboxEventJpaRepository.markPublished(
+                ids = eventIds,
+                processedAt = processedAt
+            )
         }
     }
 
     @Transactional
     override fun markError(eventId: UUID, error: String) {
-        outboxEventJpaRepository.markError(eventId, error.take(2048))
+        outboxEventJpaRepository.markError(
+            id = eventId,
+            error = error.take(2048),
+            processedAt = Instant.now()
+        )
     }
 }
