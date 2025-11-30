@@ -1,5 +1,6 @@
 package br.devrodrigues.betsettlementservice.application.service
 
+import br.devrodrigues.betsettlementservice.application.validation.MissingGameForResultException
 import br.devrodrigues.betsettlementservice.domain.port.out.GameRepository
 import br.devrodrigues.commonevents.MatchesResultEvent
 import org.slf4j.LoggerFactory
@@ -17,12 +18,12 @@ class MatchResultService(
     fun applyResult(event: MatchesResultEvent) {
         val game = gameRepository.findByExternalId(event.matchExternalId.toLong())
         if (game == null) {
-            logger.warn(
-                "Game not found to apply result eventId={} matchExternalId={}",
+            logger.error(
+                "Game not found to apply result (policy=DLQ) eventId={} matchExternalId={}",
                 event.eventId,
                 event.matchExternalId
             )
-            return
+            throw MissingGameForResultException(event.eventId, event.matchExternalId)
         }
 
         val updated = game.copy(
