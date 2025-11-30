@@ -52,13 +52,14 @@ class OutboxPublisherWorkerIntegrationTest(
     @Autowired private val objectMapper: ObjectMapper,
 ) {
     private lateinit var betPlacedEvent: BetPlacedEvent
-
-    private lateinit var consumer: Consumer<String, String>
+    private lateinit var betConsumer: Consumer<String, String>
+    private lateinit var gameConsumer: Consumer<String, String>
 
     private data class SavedOutbox(val event: OutboxEvent, val payload: String)
 
     private companion object {
         private const val TOPIC = "test.bets.placed.v1"
+        private const val GAME_TOPIC = "test.games.created.v1"
         private const val BET_ID = 123L
         private const val USER_ID = 99L
         private const val GAME_ID = 555L
@@ -92,21 +93,26 @@ class OutboxPublisherWorkerIntegrationTest(
             registry.add("spring.datasource.password") { postgres.password }
             registry.add("spring.kafka.bootstrap-servers") { kafka.bootstrapServers }
             registry.add("app.topics.bet-placed") { TOPIC }
+            registry.add("app.topics.game-created") { GAME_TOPIC }
         }
     }
 
     @BeforeEach
     fun setUp() {
         outboxEventJpaRepository.deleteAll()
-        consumer = buildConsumer()
-        consumer.subscribe(listOf(TOPIC))
-        consumer.poll(Duration.ofMillis(200))
+        betConsumer = buildConsumer("bets")
+        gameConsumer = buildConsumer("games")
+        betConsumer.subscribe(listOf(TOPIC))
+        gameConsumer.subscribe(listOf(GAME_TOPIC))
+        betConsumer.poll(Duration.ofMillis(200))
+        gameConsumer.poll(Duration.ofMillis(200))
         betPlacedEvent = defaultBetPlacedEvent()
     }
 
     @AfterEach
     fun tearDown() {
-        consumer.close()
+        betConsumer.close()
+        gameConsumer.close()
     }
 
     @Test
@@ -134,7 +140,7 @@ class OutboxPublisherWorkerIntegrationTest(
 
         outboxPublisherWorker.publishPending()
 
-        val records = KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(2))
+        val records = KafkaTestUtils.getRecords(betConsumer, Duration.ofSeconds(2))
         assertThat(records.count()).isZero()
 
         val persisted = outboxEventJpaRepository.findAll().single()
@@ -144,10 +150,35 @@ class OutboxPublisherWorkerIntegrationTest(
         assertThat(persisted.aggregateId).isEqualTo(savedOutbox.event.aggregateId)
     }
 
-    private fun buildConsumer(): Consumer<String, String> {
+    @Test
+    fun `should publish game created event`() {
+        createTopicIfNeeded(GAME_TOPIC)
+        val payload =
+            """{"eventId":"evt-1","occurredAt":"2024-01-01T10:00:00Z","emittedAt":"2024-01-01T10:00:01Z","gameId":$GAME_ID,"externalId":$GAME_EXTERNAL_ID,"homeTeam":"Home","awayTeam":"Away","startTime":"2024-01-02T10:00:00Z","status":"SCHEDULED"}"""
+        val outbox = OutboxEvent(
+            id = UUID.randomUUID(),
+            aggregateType = "game",
+            aggregateId = GAME_ID.toString(),
+            type = "GAME_CREATED",
+            payload = payload,
+            status = OutboxStatus.PENDING,
+            createdAt = Instant.now()
+        )
+        outboxEventJpaRepository.save(outbox.toEntity())
+
+        outboxPublisherWorker.publishPending()
+
+        val record = KafkaTestUtils.getRecords(gameConsumer, Duration.ofSeconds(5)).firstOrNull()
+        assertThat(record).isNotNull
+        assertThat(record!!.topic()).isEqualTo(GAME_TOPIC)
+        assertThat(record.key()).isEqualTo(outbox.aggregateId)
+        assertThat(record.value()).isEqualTo(payload)
+    }
+
+    private fun buildConsumer(group: String): Consumer<String, String> {
         val props = mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafka.bootstrapServers,
-            ConsumerConfig.GROUP_ID_CONFIG to "outbox-test-group",
+            ConsumerConfig.GROUP_ID_CONFIG to "outbox-test-group-$group",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
@@ -156,24 +187,24 @@ class OutboxPublisherWorkerIntegrationTest(
         return DefaultKafkaConsumerFactory<String, String>(props).createConsumer()
     }
 
-    private fun createTopicIfNeeded() {
+    private fun createTopicIfNeeded(topic: String = TOPIC) {
         val adminConfig = mapOf(
             AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to kafka.bootstrapServers
         )
         AdminClient.create(adminConfig).use { client ->
             val topics = client.listTopics().names().get()
-            if (!topics.contains(TOPIC)) {
-                client.createTopics(listOf(NewTopic(TOPIC, 1, 1))).all().get()
+            if (!topics.contains(topic)) {
+                client.createTopics(listOf(NewTopic(topic, 1, 1))).all().get()
             }
         }
     }
 
-    private fun deleteTopicIfExists() {
+    private fun deleteTopicIfExists(topic: String = TOPIC) {
         val adminConfig = mapOf(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to kafka.bootstrapServers)
         AdminClient.create(adminConfig).use { client ->
             val topics = client.listTopics().names().get()
-            if (topics.contains(TOPIC)) {
-                client.deleteTopics(listOf(TOPIC)).all().get()
+            if (topics.contains(topic)) {
+                client.deleteTopics(listOf(topic)).all().get()
             }
         }
     }
@@ -194,7 +225,7 @@ class OutboxPublisherWorkerIntegrationTest(
     }
 
     private fun consumeSingleRecord(): ConsumerRecord<String, String> {
-        val records = KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(5))
+        val records = KafkaTestUtils.getRecords(betConsumer, Duration.ofSeconds(5))
         assertThat(records.count()).isEqualTo(1)
         return records.iterator().next()
     }
