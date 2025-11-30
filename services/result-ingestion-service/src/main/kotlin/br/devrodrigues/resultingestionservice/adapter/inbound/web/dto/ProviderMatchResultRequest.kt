@@ -1,5 +1,6 @@
 package br.devrodrigues.resultingestionservice.adapter.inbound.web.dto
 
+import br.devrodrigues.resultingestionservice.application.model.MatchResultInput
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 
@@ -13,4 +14,12 @@ data class ProviderMatchResultRequest(
     @field:NotBlank
     val status: String,
     val providerEventId: String? = null
+)
+
+fun ProviderMatchResultRequest.toInput() = MatchResultInput(
+    matchExternalId = matchExternalId,
+    homeScore = homeScore,
+    awayScore = awayScore,
+    status = status,
+    providerEventId = providerEventId
 )
