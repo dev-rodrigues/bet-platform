@@ -9,7 +9,8 @@ data class AppProperties(
 )
 
 data class TopicsProperties(
-    val betPlaced: String
+    val betPlaced: String,
+    val gameCreated: String
 )
 
 data class OutboxProperties(

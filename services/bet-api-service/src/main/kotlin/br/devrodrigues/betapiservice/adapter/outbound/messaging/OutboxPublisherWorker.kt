@@ -1,15 +1,15 @@
 package br.devrodrigues.betapiservice.adapter.outbound.messaging
 
-import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.config.AppProperties
+import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.domain.port.out.OutboxRepository
-import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Component
 @Profile("worker")
@@ -44,6 +44,12 @@ class OutboxPublisherWorker(
         when (event.type) {
             "BET_PLACED" -> kafkaTemplate.send(
                 appProperties.topics.betPlaced,
+                event.aggregateId,
+                event.payload
+            ).get()
+
+            "GAME_CREATED" -> kafkaTemplate.send(
+                appProperties.topics.gameCreated,
                 event.aggregateId,
                 event.payload
             ).get()
