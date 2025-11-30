@@ -1,9 +1,7 @@
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
-    runtimeOnly("org.postgresql:postgresql")
     testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:1.13.12")
@@ -12,5 +10,4 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:kafka")
-    testImplementation("org.testcontainers:postgresql")
 }
