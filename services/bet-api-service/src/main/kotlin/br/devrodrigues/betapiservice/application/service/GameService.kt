@@ -13,7 +13,8 @@ import java.time.ZoneOffset
 
 @Service
 class GameService(
-    private val gameRepository: GameRepository
+    private val gameRepository: GameRepository,
+    private val outboxService: OutboxService
 ) {
 
     fun list(page: Int, size: Int): GamePage {
@@ -50,6 +51,22 @@ class GameService(
             status = command.status ?: GameStatus.SCHEDULED,
             matchDate = LocalDate.ofInstant(command.startTime, ZoneOffset.UTC)
         )
-        return gameRepository.save(game)
+        val savedGame = gameRepository.save(game)
+        publishGameCreated(savedGame)
+        return savedGame
+    }
+
+    private fun publishGameCreated(game: Game) {
+        val id = requireNotNull(game.id) { "Game id must be present to publish creation event" }
+        outboxService.saveGameCreatedEvent(
+            GameCreatedPayload(
+                id = id,
+                externalId = game.externalId,
+                homeTeam = game.homeTeam,
+                awayTeam = game.awayTeam,
+                startTime = game.startTime,
+                status = game.status.name
+            )
+        )
     }
 }
