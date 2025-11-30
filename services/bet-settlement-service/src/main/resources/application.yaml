@@ -19,3 +19,4 @@ server:
 app:
   topics:
     game-created: games.created.v1
+    matches-result: matches.result.v1
