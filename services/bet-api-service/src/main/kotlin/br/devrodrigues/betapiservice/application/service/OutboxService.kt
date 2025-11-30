@@ -4,9 +4,11 @@ import br.devrodrigues.betapiservice.application.event.BetPlacedEvent
 import br.devrodrigues.betapiservice.domain.model.Bet
 import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.domain.port.out.OutboxRepository
+import br.devrodrigues.commonevents.GameCreatedEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.time.Instant
+import java.util.*
 
 @Service
 class OutboxService(
@@ -38,4 +40,38 @@ class OutboxService(
         )
         outboxRepository.save(event)
     }
+
+    fun saveGameCreatedEvent(game: GameCreatedPayload) {
+        val payload = objectMapper.writeValueAsString(
+            GameCreatedEvent(
+                eventId = UUID.randomUUID().toString(),
+                occurredAt = Instant.now(),
+                emittedAt = Instant.now(),
+                gameId = game.id,
+                externalId = game.externalId,
+                homeTeam = game.homeTeam,
+                awayTeam = game.awayTeam,
+                startTime = game.startTime,
+                status = game.status
+            )
+        )
+
+        val event = OutboxEvent(
+            id = UUID.randomUUID(),
+            aggregateType = "game",
+            aggregateId = game.id.toString(),
+            type = "GAME_CREATED",
+            payload = payload
+        )
+        outboxRepository.save(event)
+    }
 }
+
+data class GameCreatedPayload(
+    val id: Long,
+    val externalId: Long,
+    val homeTeam: String,
+    val awayTeam: String,
+    val startTime: Instant,
+    val status: String
+)
