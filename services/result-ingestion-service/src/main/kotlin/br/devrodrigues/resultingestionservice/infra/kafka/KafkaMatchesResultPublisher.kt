@@ -1,6 +1,7 @@
 package br.devrodrigues.resultingestionservice.infra.kafka
 
 import br.devrodrigues.commonevents.MatchesResultEvent
+import br.devrodrigues.resultingestionservice.application.port.out.MatchesResultPublisher
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component

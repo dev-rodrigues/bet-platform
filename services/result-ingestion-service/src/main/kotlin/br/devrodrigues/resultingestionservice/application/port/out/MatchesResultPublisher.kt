@@ -1,4 +1,4 @@
-package br.devrodrigues.resultingestionservice.infra.kafka
+package br.devrodrigues.resultingestionservice.application.port.out
 
 import br.devrodrigues.commonevents.MatchesResultEvent
 
