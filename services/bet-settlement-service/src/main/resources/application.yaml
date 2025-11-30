@@ -1,6 +1,17 @@
 spring:
   application:
     name: bet-settlement-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/bet_settlement
+    username: settlement
+    password: settlement
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
 
 server:
   port: 8082
