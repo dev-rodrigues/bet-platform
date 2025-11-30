@@ -17,11 +17,12 @@ import java.time.ZoneOffset
 class GameServiceTest {
 
     private val gameRepository = mockk<GameRepository>()
-    private val gameService = GameService(gameRepository)
+    private val outboxService = mockk<OutboxService>()
+    private val gameService = GameService(gameRepository, outboxService)
 
     @BeforeEach
     fun setup() {
-        clearMocks(gameRepository)
+        clearMocks(gameRepository, outboxService)
     }
 
     @Test
@@ -30,6 +31,7 @@ class GameServiceTest {
         val savedSlot = slot<Game>()
         every { gameRepository.findByExternalId(command.externalId) } returns null
         every { gameRepository.save(capture(savedSlot)) } answers { savedSlot.captured.copy(id = 5L) }
+        every { outboxService.saveGameCreatedEvent(any()) } just runs
 
         val result = gameService.create(command)
 
@@ -42,6 +44,7 @@ class GameServiceTest {
         assertEquals(LocalDate.ofInstant(command.startTime, ZoneOffset.UTC), result.matchDate)
         verify(exactly = 1) { gameRepository.findByExternalId(command.externalId) }
         verify(exactly = 1) { gameRepository.save(any()) }
+        verify(exactly = 1) { outboxService.saveGameCreatedEvent(any()) }
     }
 
     @Test
@@ -61,6 +64,7 @@ class GameServiceTest {
 
         verify(exactly = 1) { gameRepository.findByExternalId(command.externalId) }
         verify(exactly = 0) { gameRepository.save(any()) }
+        verify(exactly = 0) { outboxService.saveGameCreatedEvent(any()) }
     }
 
     @Test
