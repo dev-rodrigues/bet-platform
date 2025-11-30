@@ -15,3 +15,7 @@ spring:
 
 server:
   port: 8082
+
+app:
+  topics:
+    game-created: games.created.v1
