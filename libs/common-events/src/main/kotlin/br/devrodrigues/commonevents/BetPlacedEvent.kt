@@ -1,4 +1,4 @@
-package br.devrodrigues.betsettlementservice.application.event
+package br.devrodrigues.commonevents
 
 import java.math.BigDecimal
 import java.time.Instant
