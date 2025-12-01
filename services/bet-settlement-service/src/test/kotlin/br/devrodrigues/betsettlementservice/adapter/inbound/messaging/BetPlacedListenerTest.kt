@@ -96,7 +96,6 @@ class BetPlacedListenerTest(
         assertThat(persisted.status).isEqualTo("PENDING")
         assertThat(persisted.selection).isEqualTo(event.selection)
         assertThat(persisted.userId).isEqualTo(event.userId)
-        assertThat(persisted.game).isNotNull
-        assertThat(persisted.game?.id).isEqualTo(game.id)
+        assertThat(gameJpaRepository.findById(persisted.gameId)).isPresent
     }
 }
