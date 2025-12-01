@@ -4,5 +4,6 @@ import br.devrodrigues.betsettlementservice.domain.model.SettlementJob
 
 interface SettlementJobRepository {
     fun findByMatchId(matchId: Long): SettlementJob?
+    fun findNextPendingForUpdate(): SettlementJob?
     fun save(job: SettlementJob): SettlementJob
 }

@@ -15,6 +15,9 @@ class SettlementJobRepositoryAdapter(
     override fun findByMatchId(matchId: Long): SettlementJob? =
         settlementJobJpaRepository.findByMatchId(matchId)?.toDomain()
 
+    override fun findNextPendingForUpdate(): SettlementJob? =
+        settlementJobJpaRepository.findNextPendingForUpdate()?.toDomain()
+
     override fun save(job: SettlementJob): SettlementJob =
         settlementJobJpaRepository.save(job.toEntity()).toDomain()
 }
