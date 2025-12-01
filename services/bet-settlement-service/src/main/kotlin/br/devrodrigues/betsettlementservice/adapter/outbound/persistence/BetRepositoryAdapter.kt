@@ -16,6 +16,13 @@ class BetRepositoryAdapter(
     override fun findById(id: Long): Bet? =
         betJpaRepository.findByIdOrNull(id)?.toDomain()
 
+    override fun findPendingByGameId(gameId: Long, limit: Int): List<Bet> =
+        betJpaRepository.findPendingByGameIdForUpdate(
+            gameId = gameId,
+            limit = limit
+        ).map { it.toDomain() }
+
     override fun save(bet: Bet): Bet =
         betJpaRepository.save(bet.toEntity()).toDomain()
+
 }
