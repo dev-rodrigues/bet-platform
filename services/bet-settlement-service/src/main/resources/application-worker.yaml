@@ -1,0 +1,6 @@
+spring:
+  main:
+    web-application-type: none
+app:
+  settlement:
+    worker-delay-ms: 2000
