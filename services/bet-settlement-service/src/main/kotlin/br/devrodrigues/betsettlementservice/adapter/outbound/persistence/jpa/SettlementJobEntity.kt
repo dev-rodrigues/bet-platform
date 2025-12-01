@@ -43,6 +43,7 @@ fun SettlementJobEntity.toDomain(): SettlementJob =
     SettlementJob(
         id = requireNotNull(id),
         matchId = matchId,
+        game = game?.toDomain(),
         externalMatchId = externalMatchId,
         status = status,
         batchSize = batchSize,
