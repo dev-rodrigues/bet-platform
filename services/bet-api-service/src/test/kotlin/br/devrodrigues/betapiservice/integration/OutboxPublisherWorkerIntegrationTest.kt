@@ -1,8 +1,8 @@
 package br.devrodrigues.betapiservice.integration
 
-import br.devrodrigues.betapiservice.adapter.outbound.messaging.OutboxPublisherWorker
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.OutboxEventJpaRepository
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.toEntity
+import br.devrodrigues.betapiservice.adapter.outbound.worker.OutboxPublisherWorker
 import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.domain.model.OutboxStatus
 import br.devrodrigues.commonevents.BetPlacedEvent

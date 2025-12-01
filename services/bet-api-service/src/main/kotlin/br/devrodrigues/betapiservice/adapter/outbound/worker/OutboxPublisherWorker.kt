@@ -1,4 +1,4 @@
-package br.devrodrigues.betapiservice.adapter.outbound.messaging
+package br.devrodrigues.betapiservice.adapter.outbound.worker
 
 import br.devrodrigues.betapiservice.config.AppProperties
 import br.devrodrigues.betapiservice.domain.model.OutboxEvent
