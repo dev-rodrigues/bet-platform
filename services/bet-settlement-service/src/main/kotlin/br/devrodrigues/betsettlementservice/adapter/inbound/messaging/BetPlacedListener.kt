@@ -1,35 +1,29 @@
 package br.devrodrigues.betsettlementservice.adapter.inbound.messaging
 
+import br.devrodrigues.betsettlementservice.application.event.BetPlacedEvent
+import br.devrodrigues.betsettlementservice.application.service.BetPlacementService
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
-import java.time.Instant
 
 @Component
-class BetPlacedListener {
+class BetPlacedListener(
+    private val betPlacementService: BetPlacementService
+) {
 
     private val logger = LoggerFactory.getLogger(BetPlacedListener::class.java)
 
     @KafkaListener(topics = ["\${app.topics.bet-placed}"], groupId = "bet-settlement-service-bets")
-    fun onBetPlaced(event: BetPlacedMessage) {
+    fun onBetPlaced(event: BetPlacedEvent) {
         logger.info(
             "Received BetPlaced betId={} gameExternalId={} status={}",
             event.id,
             event.gameExternalId,
             event.status
         )
+
+        betPlacementService.upsert(
+            event
+        )
     }
 }
-
-data class BetPlacedMessage(
-    val id: Long,
-    val userId: Long,
-    val gameId: Long,
-    val gameExternalId: Long,
-    val selection: String,
-    val stake: BigDecimal,
-    val odds: BigDecimal,
-    val status: String,
-    val createdAt: Instant
-)
