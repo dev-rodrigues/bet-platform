@@ -3,13 +3,13 @@ package br.devrodrigues.betapiservice.integration
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.BetJpaRepository
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.GameJpaRepository
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.OutboxEventJpaRepository
-import br.devrodrigues.betapiservice.application.event.BetPlacedEvent
 import br.devrodrigues.betapiservice.domain.model.BetStatus
 import br.devrodrigues.betapiservice.domain.model.GameStatus
 import br.devrodrigues.betapiservice.domain.model.OutboxStatus
 import br.devrodrigues.betapiservice.domain.port.out.GameRepository
 import br.devrodrigues.betapiservice.support.TestFixtures.betPayload
 import br.devrodrigues.betapiservice.support.TestFixtures.game
+import br.devrodrigues.commonevents.BetPlacedEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -120,7 +120,7 @@ class BetCreationFlowIntegrationTest(
         assertThat(payloadEvent.selection).isEqualTo(selection)
         assertThat(payloadEvent.stake).isEqualByComparingTo(stake)
         assertThat(payloadEvent.odds).isEqualByComparingTo(odds)
-        assertThat(payloadEvent.status).isEqualTo(BetStatus.PENDING)
+        assertThat(payloadEvent.status).isEqualTo(BetStatus.PENDING.name)
     }
 
     @Test

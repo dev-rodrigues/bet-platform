@@ -3,10 +3,9 @@ package br.devrodrigues.betapiservice.integration
 import br.devrodrigues.betapiservice.adapter.outbound.messaging.OutboxPublisherWorker
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.OutboxEventJpaRepository
 import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.toEntity
-import br.devrodrigues.betapiservice.application.event.BetPlacedEvent
-import br.devrodrigues.betapiservice.domain.model.BetStatus
 import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.domain.model.OutboxStatus
+import br.devrodrigues.commonevents.BetPlacedEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
@@ -238,7 +237,7 @@ class OutboxPublisherWorkerIntegrationTest(
         selection = "Team A",
         stake = java.math.BigDecimal("25.00"),
         odds = java.math.BigDecimal("2.10"),
-        status = BetStatus.PENDING,
+        status = "PENDING",
         createdAt = Instant.parse("2024-01-01T00:00:00Z")
     )
 }

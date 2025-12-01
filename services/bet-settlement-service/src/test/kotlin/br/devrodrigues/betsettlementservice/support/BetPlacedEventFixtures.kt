@@ -1,6 +1,6 @@
 package br.devrodrigues.betsettlementservice.support
 
-import br.devrodrigues.betsettlementservice.application.event.BetPlacedEvent
+import br.devrodrigues.commonevents.BetPlacedEvent
 import java.math.BigDecimal
 import java.time.Instant
 
