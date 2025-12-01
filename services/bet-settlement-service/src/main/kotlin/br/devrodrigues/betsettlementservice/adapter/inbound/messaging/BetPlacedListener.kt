@@ -1,7 +1,7 @@
 package br.devrodrigues.betsettlementservice.adapter.inbound.messaging
 
-import br.devrodrigues.betsettlementservice.application.event.BetPlacedEvent
 import br.devrodrigues.betsettlementservice.application.service.BetPlacementService
+import br.devrodrigues.commonevents.BetPlacedEvent
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component

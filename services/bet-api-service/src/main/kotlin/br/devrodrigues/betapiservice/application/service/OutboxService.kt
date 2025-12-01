@@ -1,9 +1,9 @@
 package br.devrodrigues.betapiservice.application.service
 
-import br.devrodrigues.betapiservice.application.event.BetPlacedEvent
 import br.devrodrigues.betapiservice.domain.model.Bet
 import br.devrodrigues.betapiservice.domain.model.OutboxEvent
 import br.devrodrigues.betapiservice.domain.port.out.OutboxRepository
+import br.devrodrigues.commonevents.BetPlacedEvent
 import br.devrodrigues.commonevents.GameCreatedEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
@@ -26,7 +26,7 @@ class OutboxService(
                 selection = bet.selection,
                 stake = bet.stake,
                 odds = bet.odds,
-                status = bet.status,
+                status = bet.status.name,
                 createdAt = bet.createdAt
             )
         )

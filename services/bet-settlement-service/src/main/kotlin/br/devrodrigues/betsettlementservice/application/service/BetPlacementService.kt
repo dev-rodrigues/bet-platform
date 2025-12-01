@@ -1,10 +1,10 @@
 package br.devrodrigues.betsettlementservice.application.service
 
-import br.devrodrigues.betsettlementservice.application.event.BetPlacedEvent
 import br.devrodrigues.betsettlementservice.application.validation.MissingGameForBetPlacementException
 import br.devrodrigues.betsettlementservice.domain.model.Bet
 import br.devrodrigues.betsettlementservice.domain.port.out.BetRepository
 import br.devrodrigues.betsettlementservice.domain.port.out.GameRepository
+import br.devrodrigues.commonevents.BetPlacedEvent
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
