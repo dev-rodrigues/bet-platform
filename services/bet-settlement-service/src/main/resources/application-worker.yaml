@@ -1,6 +1,8 @@
 spring:
   main:
     web-application-type: none
+server:
+  port: 9092
 app:
   settlement:
     worker-delay-ms: 2000

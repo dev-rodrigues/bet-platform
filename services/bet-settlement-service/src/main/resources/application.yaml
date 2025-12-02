@@ -26,9 +26,6 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-server:
-  port: 8082
-
 app:
   topics:
     bet-placed: bets.placed.v1
