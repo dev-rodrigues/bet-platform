@@ -4,23 +4,22 @@ import br.devrodrigues.betapiservice.application.service.BetService
 import br.devrodrigues.betapiservice.application.service.dto.CreateBetCommand
 import br.devrodrigues.betapiservice.application.validation.BetValidationException
 import br.devrodrigues.betapiservice.application.validation.ValidationError
-import com.fasterxml.jackson.databind.ObjectMapper
 import br.devrodrigues.betapiservice.support.TestFixtures.bet
 import br.devrodrigues.betapiservice.support.TestFixtures.betPayload
 import br.devrodrigues.betapiservice.support.TestFixtures.betPayloadTeamB
-import java.math.BigDecimal
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import java.math.BigDecimal
 
 @WebMvcTest(BetController::class)
 class BetControllerTest(
@@ -55,7 +54,7 @@ class BetControllerTest(
         val captured = captor.firstValue
         assertEquals(1L, captured.userId)
         assertEquals(10L, captured.gameId)
-        assertEquals("Team A", captured.selection)
+        assertEquals("HOME_WIN", captured.selection)
         assertEquals(0, captured.stake.compareTo(BigDecimal("50.00")))
         assertEquals(0, captured.odds.compareTo(BigDecimal("2.10")))
     }
