@@ -1,26 +1,19 @@
 package br.devrodrigues.betapiservice.application.service
 
 import br.devrodrigues.betapiservice.application.validation.BetValidationException
-import br.devrodrigues.betapiservice.application.validation.ValidationError
 import br.devrodrigues.betapiservice.application.validation.BetValidator
+import br.devrodrigues.betapiservice.application.validation.ValidationError
 import br.devrodrigues.betapiservice.domain.model.Bet
 import br.devrodrigues.betapiservice.domain.model.BetStatus
 import br.devrodrigues.betapiservice.domain.port.out.BetRepository
-import br.devrodrigues.betapiservice.support.TestFixtures.bet
 import br.devrodrigues.betapiservice.support.TestFixtures.betCommand
 import br.devrodrigues.betapiservice.support.TestFixtures.game
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.just
-import io.mockk.Runs
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
-import java.math.BigDecimal
+import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
 
 class BetServiceTest {
 
@@ -66,7 +59,7 @@ class BetServiceTest {
         val command = betCommand(
             userId = 2L,
             gameId = 20L,
-            selection = "Team B",
+            selection = "AWAY_WIN",
             stake = BigDecimal("25.00"),
             odds = BigDecimal("1.80")
         )
@@ -88,7 +81,7 @@ class BetServiceTest {
         val command = betCommand(
             userId = 3L,
             gameId = 30L,
-            selection = "Draw",
+            selection = "DRAW",
             stake = BigDecimal("10.00"),
             odds = BigDecimal("3.00")
         )

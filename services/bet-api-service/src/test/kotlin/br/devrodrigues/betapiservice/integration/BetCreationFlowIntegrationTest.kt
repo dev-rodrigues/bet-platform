@@ -44,7 +44,7 @@ class BetCreationFlowIntegrationTest(
     private lateinit var basePayload: Map<String, Any>
     private val stake = BigDecimal("75.50")
     private val odds = BigDecimal("1.85")
-    private val selection = "Team A wins"
+    private val selection = "HOME_WIN"
     private val userId = 42L
 
     companion object {

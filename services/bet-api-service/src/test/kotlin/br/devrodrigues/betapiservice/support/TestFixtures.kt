@@ -15,7 +15,7 @@ object TestFixtures {
     fun betCommand(
         userId: Long = 1L,
         gameId: Long = 10L,
-        selection: String = "Team A",
+        selection: String = "HOME_WIN",
         stake: BigDecimal = BigDecimal("50.00"),
         odds: BigDecimal = BigDecimal("2.10")
     ) = CreateBetCommand(
@@ -67,7 +67,7 @@ object TestFixtures {
         id: Long? = 99L,
         userId: Long = 1L,
         gameId: Long = 10L,
-        selection: String = "Team A",
+        selection: String = "HOME_WIN",
         stake: BigDecimal = BigDecimal("50.00"),
         odds: BigDecimal = BigDecimal("2.10"),
         status: BetStatus = BetStatus.PENDING,
@@ -86,7 +86,7 @@ object TestFixtures {
     fun betPayload(
         userId: Long = 1,
         gameId: Long = 10,
-        selection: String = "Team A",
+        selection: String = "HOME_WIN",
         stake: Number = 50.00,
         odds: Number = 2.10
     ): Map<String, Any> = mapOf(
@@ -100,7 +100,7 @@ object TestFixtures {
     fun betPayloadTeamB(): Map<String, Any> = betPayload(
         userId = 2,
         gameId = 20,
-        selection = "Team B",
+        selection = "AWAY_WIN",
         stake = 10.00,
         odds = 1.50
     )

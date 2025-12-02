@@ -234,7 +234,7 @@ class OutboxPublisherWorkerIntegrationTest(
         userId = USER_ID,
         gameId = GAME_ID,
         gameExternalId = GAME_EXTERNAL_ID,
-        selection = "Team A",
+        selection = "HOME_WIN",
         stake = java.math.BigDecimal("25.00"),
         odds = java.math.BigDecimal("2.10"),
         status = "PENDING",
