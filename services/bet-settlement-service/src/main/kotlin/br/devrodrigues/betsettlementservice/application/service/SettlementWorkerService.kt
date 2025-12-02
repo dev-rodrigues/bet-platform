@@ -2,20 +2,24 @@ package br.devrodrigues.betsettlementservice.application.service
 
 import br.devrodrigues.betsettlementservice.domain.model.Bet
 import br.devrodrigues.betsettlementservice.domain.model.Game
+import br.devrodrigues.betsettlementservice.domain.model.OutboxEvent
 import br.devrodrigues.betsettlementservice.domain.port.out.BetRepository
+import br.devrodrigues.betsettlementservice.domain.port.out.OutboxEventRepository
 import br.devrodrigues.betsettlementservice.domain.port.out.SettlementJobRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Instant
+import java.util.*
 
 enum class BetOutcome { WON, LOST, VOID }
 
 @Service
 class SettlementWorkerService(
     private val settlementJobRepository: SettlementJobRepository,
-    private val betRepository: BetRepository
+    private val betRepository: BetRepository,
+    private val outboxEventRepository: OutboxEventRepository,
 ) {
     private val logger = LoggerFactory.getLogger(SettlementWorkerService::class.java)
 
@@ -34,11 +38,12 @@ class SettlementWorkerService(
             return
         }
 
-        val runningJob = job.copy(
+        var runningJob = job.copy(
             status = "RUNNING",
             updatedAt = Instant.now()
         )
-        settlementJobRepository.save(runningJob)
+
+        runningJob = settlementJobRepository.save(runningJob)
 
         logger.info("Marked settlement job id={} as RUNNING (gameId={})", job.id, game.id)
 
@@ -48,6 +53,15 @@ class SettlementWorkerService(
             jobId = job.id!!,
             game = game
         )
+
+        settlementJobRepository.save(
+            runningJob.copy(
+                status = "FINISHED",
+                updatedAt = Instant.now()
+            )
+        )
+
+        logger.info("Marked settlement job id={} as FINISHED", job.id)
     }
 
     private fun processPendingBets(matchId: Long, batchSize: Int, jobId: Long, game: Game) {
@@ -60,7 +74,6 @@ class SettlementWorkerService(
                     updatedAt = Instant.now()
                 )
             )
-            logger.info("Marked settlement job id={} as FINISHED", jobId)
             return
         }
 
@@ -91,6 +104,74 @@ class SettlementWorkerService(
             }
 
         }
+
+        if (payoutsByUser.isNotEmpty()) {
+            val outboxEvents = resolvePaymentsByUser(
+                payoutsByUser = payoutsByUser,
+                game = game,
+                matchId = matchId,
+                jobId = jobId
+            )
+
+            outboxEventRepository.saveAll(outboxEvents)
+        }
+
+
+    }
+
+    private fun resolvePaymentsByUser(
+        matchId: Long,
+        payoutsByUser: Map<Long, BigDecimal>,
+        game: Game,
+        jobId: Long
+    ): List<OutboxEvent> {
+        if (payoutsByUser.isEmpty()) {
+            return emptyList()
+        }
+
+        val createdAt = Instant.now()
+
+        return payoutsByUser.map { (userId, totalAmount) ->
+            val paymentRequestId = "MATCH${matchId}_USER${userId}_BATCH-${jobId}"
+
+            val payload = buildPaymentRequestedPayload(
+                paymentRequestId = paymentRequestId,
+                createdAt = createdAt,
+                userId = userId,
+                totalAmount = totalAmount,
+                matchExternalId = game.externalId.toString()
+            )
+
+            OutboxEvent(
+                id = UUID.randomUUID(),
+                aggregateType = "WALLET_PAYMENT_REQUEST",
+                aggregateId = userId.toString(),
+                eventType = "payments.requested.v1",
+                payload = payload,
+                status = "PENDING",
+                referenceId = paymentRequestId
+            )
+        }
+    }
+
+    private fun buildPaymentRequestedPayload(
+        paymentRequestId: String,
+        createdAt: Instant,
+        userId: Long,
+        totalAmount: BigDecimal,
+        matchExternalId: String
+    ): String {
+        return """
+            {
+              "paymentRequestId": "$paymentRequestId",
+              "createdAt": "$createdAt",
+              "userId": $userId,
+              "totalAmount": $totalAmount,
+              "currency": "BRL",
+              "reason": "BET_PAYOUT",
+              "matchExternalId": "$matchExternalId"
+            }
+        """.trimIndent()
     }
 
     private fun resolveBetOutcome(game: Game, bet: Bet): BetOutcome {
