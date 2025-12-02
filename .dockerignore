@@ -1,0 +1,12 @@
+.git
+.idea
+.gradle
+build
+**/build
+out
+tmp
+*.iml
+*.log
+node_modules
+e2e/.pytest_cache
+e2e/.mypy_cache

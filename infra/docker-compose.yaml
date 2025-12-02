@@ -92,6 +92,103 @@ services:
     networks:
       - betting-net
 
+  bet-api-web:
+    image: bet-api-service:local
+    profiles: [ "apps" ]
+    build:
+      context: ..
+      dockerfile: services/bet-api-service/Dockerfile
+    container_name: bet-api-web
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/betting
+      SPRING_DATASOURCE_USERNAME: betting
+      SPRING_DATASOURCE_PASSWORD: betting
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - betting-net
+
+  bet-api-worker:
+    image: bet-api-service:local
+    profiles: [ "apps" ]
+    container_name: bet-api-worker
+    environment:
+      SPRING_PROFILES_ACTIVE: worker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/betting
+      SPRING_DATASOURCE_USERNAME: betting
+      SPRING_DATASOURCE_PASSWORD: betting
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - betting-net
+
+  bet-settlement-web:
+    image: bet-settlement-service:local
+    profiles: [ "apps" ]
+    build:
+      context: ..
+      dockerfile: services/bet-settlement-service/Dockerfile
+    container_name: bet-settlement-web
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-settlement:5432/bet_settlement
+      SPRING_DATASOURCE_USERNAME: settlement
+      SPRING_DATASOURCE_PASSWORD: settlement
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres-settlement:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - betting-net
+
+  bet-settlement-worker:
+    image: bet-settlement-service:local
+    profiles: [ "apps" ]
+    container_name: bet-settlement-worker
+    environment:
+      SPRING_PROFILES_ACTIVE: worker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-settlement:5432/bet_settlement
+      SPRING_DATASOURCE_USERNAME: settlement
+      SPRING_DATASOURCE_PASSWORD: settlement
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+    depends_on:
+      postgres-settlement:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - betting-net
+
+  result-ingestion-web:
+    image: result-ingestion-service:local
+    profiles: [ "apps" ]
+    build:
+      context: ..
+      dockerfile: services/result-ingestion-service/Dockerfile
+    container_name: result-ingestion-web
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+    ports:
+      - "8083:8083"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - betting-net
+
 volumes:
   postgres_data:
   postgres_settlement_data:
