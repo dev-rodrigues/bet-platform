@@ -3,7 +3,7 @@ package br.devrodrigues.betsettlementservice.domain.model
 import java.util.*
 
 data class OutboxEvent(
-    val id: UUID,
+    val id: UUID? = null,
     val aggregateType: String,
     val aggregateId: String,
     val eventType: String,

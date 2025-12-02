@@ -5,6 +5,7 @@ import br.devrodrigues.betsettlementservice.adapter.outbound.persistence.jpa.toE
 import br.devrodrigues.betsettlementservice.domain.model.OutboxEvent
 import br.devrodrigues.betsettlementservice.domain.port.out.OutboxEventRepository
 import org.springframework.stereotype.Repository
+import java.util.*
 import br.devrodrigues.betsettlementservice.adapter.outbound.persistence.jpa.OutboxEventRepository as OutboxEventJpaRepository
 
 @Repository
@@ -16,4 +17,22 @@ class OutboxEventAdapter(
         outboxEventJpaRepository
             .saveAll(events.map { it.toEntity() })
             .map { it.toDomain() }
+
+    override fun findPendingWalletPayments(limit: Int): List<OutboxEvent> =
+        outboxEventJpaRepository
+            .findPendingWalletPaymentsForUpdate(
+                aggregateType = "WALLET_PAYMENT_REQUEST",
+                status = "PENDING",
+                limit = limit
+            ).map { it.toDomain() }
+
+    override fun markPublished(eventIds: List<UUID>) {
+        if (eventIds.isNotEmpty()) {
+            outboxEventJpaRepository.markPublished(eventIds)
+        }
+    }
+
+    override fun markError(eventId: UUID, error: String) {
+        outboxEventJpaRepository.markError(eventId)
+    }
 }

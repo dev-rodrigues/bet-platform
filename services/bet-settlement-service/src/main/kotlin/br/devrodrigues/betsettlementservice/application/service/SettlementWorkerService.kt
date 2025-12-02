@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Instant
-import java.util.*
 
 enum class BetOutcome { WON, LOST, VOID }
 
@@ -143,7 +142,6 @@ class SettlementWorkerService(
             )
 
             OutboxEvent(
-                id = UUID.randomUUID(),
                 aggregateType = "WALLET_PAYMENT_REQUEST",
                 aggregateId = userId.toString(),
                 eventType = "payments.requested.v1",

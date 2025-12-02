@@ -13,7 +13,7 @@ import java.util.*
 )
 data class OutboxEventEntity(
     @Id
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
     @Column(name = "aggregate_type", nullable = false, length = 64)
     val aggregateType: String,

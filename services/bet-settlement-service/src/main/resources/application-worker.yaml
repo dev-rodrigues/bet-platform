@@ -4,5 +4,6 @@ spring:
 server:
   port: 9092
 app:
-  settlement:
-    worker-delay-ms: 2000
+  outbox:
+    batch-size: 100
+    publisher-delay-ms: 2000
