@@ -46,7 +46,7 @@ flowchart TD
     "userId": 42,
     "gameId": 10,
     "gameExternalId": 987,
-    "selection": "Team A",
+    "selection": "HOME_WIN",
     "stake": 100.00,
     "odds": 2.25,
     "status": "PENDING",
