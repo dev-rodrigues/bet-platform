@@ -6,12 +6,16 @@ import br.devrodrigues.betapiservice.adapter.outbound.persistence.jpa.toEntity
 import br.devrodrigues.betapiservice.domain.model.Game
 import br.devrodrigues.betapiservice.domain.port.out.GameRepository
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
 class GameRepositoryAdapter(
     private val gameJpaRepository: GameJpaRepository
 ) : GameRepository {
+    override fun findById(id: Long): Game? {
+        return gameJpaRepository.findByIdOrNull(id)?.toDomain()
+    }
 
     override fun findByExternalId(externalId: Long): Game? =
         gameJpaRepository.findByExternalId(externalId)?.toDomain()

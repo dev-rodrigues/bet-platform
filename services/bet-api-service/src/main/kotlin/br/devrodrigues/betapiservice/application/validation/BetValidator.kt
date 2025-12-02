@@ -3,9 +3,9 @@ package br.devrodrigues.betapiservice.application.validation
 import br.devrodrigues.betapiservice.application.service.dto.CreateBetCommand
 import br.devrodrigues.betapiservice.domain.model.Game
 import br.devrodrigues.betapiservice.domain.port.out.GameRepository
+import org.springframework.stereotype.Component
 import java.time.Clock
 import java.time.Instant
-import org.springframework.stereotype.Component
 
 @Component
 class BetValidator(
@@ -15,7 +15,7 @@ class BetValidator(
 
     fun validateAndGetGame(command: CreateBetCommand): Game {
         val errors = mutableListOf<ValidationError>()
-        val game = gameRepository.findByExternalId(command.gameId)
+        val game = gameRepository.findById(command.gameId)
 
         if (game == null) {
             errors.add(
