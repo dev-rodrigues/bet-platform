@@ -91,7 +91,6 @@ flowchart TD
 
 ---
 ![img.png](infra/img.png)
-
 Fluxo geral:
 
 - `bet-api-service` recebe bets/games via HTTP, persiste em `betting`, publica `bets.placed.v1` e `games.created.v1`, e
