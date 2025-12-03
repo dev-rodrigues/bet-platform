@@ -60,3 +60,48 @@ flowchart LR
     "status": "SCHEDULED"
   }
   ```
+
+## Diagrama UML (Entidades JPA)
+
+```mermaid
+classDiagram
+    direction LR
+
+    class GameEntity {
+        +Long id
+        +Long externalId
+        +String homeTeam
+        +String awayTeam
+        +Instant startTime
+        +Int? homeScore
+        +Int? awayScore
+        +GameStatus status
+        +LocalDate matchDate
+    }
+
+    class BetEntity {
+        +Long id
+        +Long userId
+        +GameEntity game
+        +String selection
+        +BigDecimal stake
+        +BigDecimal odds
+        +BetStatus status
+        +Instant createdAt
+    }
+
+    class OutboxEventEntity {
+        +UUID id
+        +String aggregateType
+        +String aggregateId
+        +String type
+        +String payload
+        +OutboxStatus status
+        +Instant createdAt
+        +Instant? processedAt
+        +String? lastError
+    }
+
+    BetEntity --> GameEntity: many-to-one\n(game_id)
+    OutboxEventEntity ..> BetEntity: outbox row
+```
