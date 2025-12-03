@@ -22,22 +22,6 @@ flowchart LR
     worker --> kafkaGameOut
 ```
 
-## Fluxo de processamento /bets
-
-```mermaid
-flowchart TD
-    start([POST /bets]) --> validate{Janela aberta?}
-    validate -->|ok| persistBet[Salvar bet]
-    validate -->|falha| fail422[Retornar 422]
-    persistBet --> saveOutbox[Salvar outbox BET_PLACED]
-    saveOutbox --> created[Responder 201 com bet]
-    saveOutbox --> pendingOutbox[Pendente na outbox]
-    pendingOutbox --> workerLoop[Worker lê PENDING]
-    workerLoop --> publishKafka[Publicar em Kafka tópico bet_placed]
-    publishKafka --> markPublished[markPublished<br/>status PUBLISHED]
-    publishKafka -->|erro| markError[markError<br/>status ERROR]
-```
-
 ## Endpoints principais
 
 - `POST /games` – cria jogo.
