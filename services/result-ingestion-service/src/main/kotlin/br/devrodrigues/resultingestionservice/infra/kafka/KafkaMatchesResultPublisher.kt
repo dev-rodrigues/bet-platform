@@ -13,6 +13,6 @@ class KafkaMatchesResultPublisher(
 ) : MatchesResultPublisher {
 
     override fun publish(event: MatchesResultEvent) {
-        kafkaTemplate.send(topic, event.matchExternalId, event)
+        kafkaTemplate.send(topic, event.matchExternalId, event).get()
     }
 }

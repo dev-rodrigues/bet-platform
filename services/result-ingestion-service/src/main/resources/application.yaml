@@ -16,6 +16,28 @@ management:
       exposure:
         include: health,info
 
+resilience4j:
+  retry:
+    instances:
+      matchesResultPublisher:
+        max-attempts: ${MATCH_RESULT_PUBLISH_MAX_ATTEMPTS:3}
+        wait-duration: ${MATCH_RESULT_PUBLISH_WAIT_DURATION:2s}
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: ${MATCH_RESULT_PUBLISH_BACKOFF_MULTIPLIER:2.0}
+        exponential-max-wait-duration: ${MATCH_RESULT_PUBLISH_MAX_WAIT_DURATION:30s}
+        enable-randomized-wait: true
+        randomized-wait-factor: ${MATCH_RESULT_PUBLISH_RANDOMIZED_WAIT_FACTOR:0.5}
+        retry-exceptions:
+          - java.util.concurrent.ExecutionException
+          - org.apache.kafka.common.KafkaException
+          - org.springframework.kafka.KafkaException
+          - org.apache.kafka.common.errors.TimeoutException
+          - org.apache.kafka.common.errors.NetworkException
+          - org.apache.kafka.common.errors.DisconnectException
+          - org.apache.kafka.common.errors.AuthorizationException
+          - org.apache.kafka.common.errors.AuthenticationException
+          - java.net.UnknownHostException
+
 bet:
   kafka:
     topics:
