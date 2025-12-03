@@ -100,6 +100,3 @@ Fluxo geral:
 - `bet-settlement-service` consome `bets.placed.v1`, `games.created.v1` e `matches.result.v1`, liquida apostas em
   `bet_settlement`, e publica `payments.requested.v1`; se um resultado chegar sem jogo, envia para `matches.result.dlq`.
 - Consumidores externos (ex.: carteira) leem `payments.requested.v1`.
-
-Diagrama Draw.io (arquitetura): `infra/architecture.drawio` (abra no diagrams.net/draw.io para a versão com ícones e
-agrupamentos).
