@@ -1,50 +1,139 @@
 package br.devrodrigues.resultingestionservice.application.service
 
-import br.devrodrigues.commonevents.MatchesResultEvent
-import br.devrodrigues.resultingestionservice.adapter.inbound.web.dto.ProviderMatchResultRequest
-import br.devrodrigues.resultingestionservice.adapter.inbound.web.dto.toInput
-import br.devrodrigues.resultingestionservice.application.mapper.MatchResultMapper
-import br.devrodrigues.resultingestionservice.application.port.out.MatchesResultPublisher
-import org.assertj.core.api.Assertions.assertThat
+import br.devrodrigues.resultingestionservice.application.model.MatchResultInput
+import br.devrodrigues.resultingestionservice.config.FlakyPublisher
+import br.devrodrigues.resultingestionservice.config.RetryTestConfig
+import org.apache.kafka.clients.admin.AdminClient
+import org.apache.kafka.clients.admin.AdminClientConfig
+import org.apache.kafka.clients.admin.NewTopic
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.errors.TimeoutException
+import org.apache.kafka.common.errors.TopicExistsException
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.*
+import org.junit.jupiter.api.assertThrows
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.utility.DockerImageName
+import java.time.Duration
+import java.util.*
+import java.util.concurrent.ExecutionException
 
+@SpringBootTest
+@Import(RetryTestConfig::class)
+@Testcontainers
 class MatchResultIngestionServiceTest {
 
-    private val mapper = MatchResultMapper()
-    private val publisher: MatchesResultPublisher = mock()
-    private val service = MatchResultIngestionService(mapper, publisher)
+    @Autowired
+    lateinit var service: MatchResultIngestionService
+
+    @Autowired
+    lateinit var flakyPublisher: FlakyPublisher
+
+    private val topic = "matches.result.v1"
+
+    companion object {
+        @Container
+        @JvmField
+        val kafka: KafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"))
+
+        @JvmStatic
+        @DynamicPropertySource
+        fun kafkaProps(registry: DynamicPropertyRegistry) {
+            registry.add("spring.kafka.bootstrap-servers") { kafka.bootstrapServers }
+            registry.add("resilience4j.retry.instances.matchesResultPublisher.max-attempts") { 3 }
+            registry.add("resilience4j.retry.instances.matchesResultPublisher.wait-duration") { "10ms" }
+            registry.add("resilience4j.retry.instances.matchesResultPublisher.enable-exponential-backoff") { true }
+            registry.add("resilience4j.retry.instances.matchesResultPublisher.exponential-backoff-multiplier") { 2.0 }
+            registry.add("resilience4j.retry.instances.matchesResultPublisher.exponential-max-wait-duration") { "100ms" }
+            registry.add("resilience4j.retry.instances.matchesResultPublisher.enable-randomized-wait") { false }
+        }
+    }
+
+    @BeforeEach
+    fun setup() {
+        ensureTopicExists()
+        flakyPublisher.reset()
+    }
 
     @Test
-    fun `should publish mapped event when receiving provider request`() {
-        val request = ProviderMatchResultRequest(
-            matchExternalId = "match-123",
-            homeScore = 1,
+    fun `should retry transient failures and publish once`() {
+        flakyPublisher.failuresBeforeSuccess = 2
+
+        val input = MatchResultInput(
+            matchExternalId = "match-${UUID.randomUUID()}",
+            homeScore = 2,
             awayScore = 1,
             status = "FINISHED",
-            providerEventId = "prov-1"
+            providerEventId = "prov-${UUID.randomUUID()}"
         )
 
-        val eventCaptor = argumentCaptor<MatchesResultEvent>()
-        doNothing().whenever(publisher).publish(any())
+        val event = service.ingest(input)
 
-        val result = service.ingest(request.toInput())
+        assertEquals(3, flakyPublisher.attempts.get(), "should attempt initial try + 2 retries")
+        assertEquals(1, flakyPublisher.published.size, "event should be published once after retries")
+        assertEquals(input.matchExternalId, event.matchExternalId)
 
-        assertThat(result.matchExternalId).isEqualTo(request.matchExternalId)
-        assertThat(result.homeScore).isEqualTo(request.homeScore)
-        assertThat(result.awayScore).isEqualTo(request.awayScore)
-        assertThat(result.status).isEqualTo(request.status)
-        assertThat(result.provider).isEqualTo(request.providerEventId)
-        assertThat(result.eventId).isNotBlank()
-        assertThat(result.emittedAt).isNotNull()
-        assertThat(result.occurredAt).isNotNull()
+        val consumer = kafkaConsumer()
+        consumer.use {
+            it.subscribe(listOf(topic))
+            val records = it.poll(Duration.ofSeconds(5))
+            assertTrue(records.count() > 0, "record should be available after successful publish")
+            assertTrue(records.any { record -> record.value().contains(input.matchExternalId) })
+        }
+    }
 
-        verify(publisher).publish(eventCaptor.capture())
-        val published = eventCaptor.firstValue
-        assertThat(published.matchExternalId).isEqualTo(request.matchExternalId)
-        assertThat(published.homeScore).isEqualTo(request.homeScore)
-        assertThat(published.awayScore).isEqualTo(request.awayScore)
-        assertThat(published.status).isEqualTo(request.status)
-        assertThat(published.provider).isEqualTo(request.providerEventId)
+    @Test
+    fun `should stop after max attempts on persistent failure`() {
+        flakyPublisher.failuresBeforeSuccess = 5
+
+        val input = MatchResultInput(
+            matchExternalId = "match-${UUID.randomUUID()}",
+            homeScore = 0,
+            awayScore = 0,
+            status = "PENDING",
+            providerEventId = "prov-${UUID.randomUUID()}"
+        )
+
+        assertThrows<TimeoutException> { service.ingest(input) }
+        assertEquals(3, flakyPublisher.attempts.get(), "should stop at configured max attempts")
+        assertTrue(flakyPublisher.published.isEmpty(), "no event should be published when all attempts fail")
+    }
+
+    private fun kafkaConsumer(): KafkaConsumer<String, String> {
+        val props = Properties().apply {
+            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.bootstrapServers)
+            put(ConsumerConfig.GROUP_ID_CONFIG, "test-${UUID.randomUUID()}")
+            put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
+            put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
+            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+        }
+        return KafkaConsumer(props)
+    }
+
+    private fun ensureTopicExists() {
+        val props = mapOf(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to kafka.bootstrapServers)
+        AdminClient.create(props).use { admin ->
+            val topicDefinition = NewTopic(topic, 1, 1.toShort())
+            try {
+                admin.createTopics(listOf(topicDefinition)).all().get()
+            } catch (ex: ExecutionException) {
+                if (ex.cause !is TopicExistsException) {
+                    throw ex
+                } else {
+                    // topic already exists; ignore
+                }
+            }
+        }
     }
 }
