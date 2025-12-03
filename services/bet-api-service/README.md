@@ -7,11 +7,19 @@ para publicação no Kafka.
 
 ```mermaid
 flowchart LR
+    subgraph Kafka["Kafka"]
+        direction LR
+        kafkaIn["matches-result (in)"]
+        kafkaBetOut["bet-placed (out)"]
+        kafkaGameOut["game-created (out)"]
+    end
+
+    kafkaIn --> api
     client[Clientes HTTP] --> api[bet-api-service<br/>Perfil padrão]
     api --> db[(Postgres<br/>bets/outbox)]
-    db --> worker[Worker<br/>Perfil: worker]
-    worker --> kafka[Kafka<br/>app.topics.bet-placed]
-    worker --> db
+    db -. lê outbox .-> worker[Worker<br/>Perfil: worker]
+    worker --> kafkaBetOut
+    worker --> kafkaGameOut
 ```
 
 ## Fluxo de processamento /bets
