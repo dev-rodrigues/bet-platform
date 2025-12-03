@@ -19,5 +19,11 @@ enum class GameStatus {
     SCHEDULED,
     LIVE,
     FINISHED,
-    CANCELED
+    CANCELED;
+
+    companion object {
+        fun from(value: String): GameStatus =
+            GameStatus.entries.firstOrNull { it.name.equals(value.trim(), ignoreCase = true) }
+                ?: throw IllegalArgumentException("Invalid GameStatus: $value")
+    }
 }
