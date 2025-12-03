@@ -18,27 +18,8 @@
   ```sh
   make ps
   ```
-- Se o plugin `docker compose` não estiver disponível, o Makefile tenta usar `docker-compose`. Você também pode forçar: `COMPOSE_BIN=docker-compose make up`.
 
-## Acesso às ferramentas
-- **Postgres**: `localhost:5432`, db/user/password `betting`. Exemplo de conexão:
-  ```sh
-  psql postgresql://betting:betting@localhost:5432/betting
-  # ou dentro do container
-  make psql
-  ```
-- **Redpanda (Kafka)**:
-  - Broker para clientes na máquina host: `localhost:19092` (ex.: `KAFKA_BOOTSTRAP_SERVERS=localhost:19092`).
-  - Listener interno (containers): `redpanda:9092`.
-  - Admin API (health/metrics, sem UI): `localhost:9644`.
-- **Redpanda Console (UI)**: painel web em `http://localhost:8080` para tópicos, mensagens e consumer groups (sobe via `make up`).
-- **Swagger do bet-api-service**: com o serviço rodando (`./gradlew :services:bet-api-service:bootRun`), acesse `http://localhost:8080/swagger-ui/index.html` para a documentação e testes.
-
-## Estrutura
-- `infra/docker-compose.yaml` define o stack local.
-- `Makefile` na raiz facilita comandos `up/down/logs/ps/psql`.
-
-## Arquitetura geral (alto nível)
+## Arquitetura geral
 
 ```mermaid
 flowchart TD
@@ -108,6 +89,9 @@ flowchart TD
     linkStyle 0 stroke: #666, stroke-width: 1.5
 ```
 
+---
+![img.png](infra/img.png)
+
 Fluxo geral:
 
 - `bet-api-service` recebe bets/games via HTTP, persiste em `betting`, publica `bets.placed.v1` e `games.created.v1`, e
@@ -116,3 +100,6 @@ Fluxo geral:
 - `bet-settlement-service` consome `bets.placed.v1`, `games.created.v1` e `matches.result.v1`, liquida apostas em
   `bet_settlement`, e publica `payments.requested.v1`; se um resultado chegar sem jogo, envia para `matches.result.dlq`.
 - Consumidores externos (ex.: carteira) leem `payments.requested.v1`.
+
+Diagrama Draw.io (arquitetura): `infra/architecture.drawio` (abra no diagrams.net/draw.io para a versão com ícones e
+agrupamentos).

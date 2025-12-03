@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.3">
+  <diagram id="bet-platform-arch" name="Architecture">
+    <mxGraphModel dx="1869" dy="885" grid="0" gridSize="10" guides="0" tooltips="1" connect="0" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" background="none" math="0" shadow="1" adaptiveColors="none">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sources" parent="1" style="swimlane;horizontal=0;rounded=1;strokeWidth=1.5;fillColor=#f7f7f7;fontStyle=1;startSize=28;strokeColor=default;swimlaneLine=1;shadow=1;" value="Fontes" vertex="1">
+          <mxGeometry height="240" width="240" x="37" y="172" as="geometry" />
+        </mxCell>
+        <mxCell id="webhookProvider" parent="sources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=default;image=img/lib/tech/users/user_id.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="Fornecedor de resultado" vertex="1">
+          <mxGeometry height="50" width="180" x="44" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="services" parent="1" style="swimlane;horizontal=1;rounded=1;strokeWidth=1.5;fillColor=#f7f7f7;fontStyle=1;startSize=28;strokeColor=default;swimlaneLine=1;shadow=1;" value="Serviços" vertex="1">
+          <mxGeometry height="270" width="1240" x="340" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="svcIngestion" parent="services" style="swimlane;horizontal=0;rounded=1;fillColor=none;strokeColor=default;startSize=28;fontStyle=1;swimlaneFillColor=default;swimlaneLine=1;shadow=1;" value="result-ingestion-service" vertex="1">
+          <mxGeometry height="180" width="240" x="30" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ingestionNode" parent="svcIngestion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=default;image=img/lib/tech/networking/api.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="webhook resultados" vertex="1">
+          <mxGeometry height="60" width="180" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="svcApi" parent="services" style="swimlane;horizontal=0;rounded=1;fillColor=#ffffff;strokeColor=default;startSize=28;fontStyle=1;swimlaneLine=1;shadow=1;" value="bet-api-service" vertex="1">
+          <mxGeometry height="180" width="380" x="290" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="apiWeb" parent="svcApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=default;image=img/lib/tech/networking/application_gateway.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;align=center;" value="Web / Listener&lt;div&gt;&lt;div style=&quot;text-align: justify;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- game / bet&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: justify;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- matches.result&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="230" x="40" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="apiWorker" parent="svcApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=default;image=img/lib/tech/networking/processing.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="worker (outbox publisher)" vertex="1">
+          <mxGeometry height="40" width="230" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="apiDb" parent="svcApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=default;image=img/lib/tech/servers/database.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;align=left;" value="&lt;div style=&quot;&quot;&gt;DB&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="80" x="290" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svcSettle" parent="services" style="swimlane;horizontal=0;rounded=1;fillColor=#ffffff;strokeColor=default;startSize=28;fontStyle=1;swimlaneLine=1;shadow=1;" value="bet-settlement-service" vertex="1">
+          <mxGeometry height="180" width="340" x="690" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="setListeners" parent="svcSettle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=default;image=img/lib/tech/networking/processing.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="Listeners&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); text-align: justify;&quot;&gt;bets.placed /&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); text-align: justify;&quot;&gt;games.created /&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); text-align: justify;&quot;&gt;matches.result&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="180" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="setWorker" parent="svcSettle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=default;image=img/lib/tech/networking/processing.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="worker&lt;br&gt;liquidação / outbox" vertex="1">
+          <mxGeometry height="40" width="180" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="EqMkOduFLGrsOLQ58GCK-2" parent="svcSettle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=default;image=img/lib/tech/servers/database.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;align=left;" value="&lt;div style=&quot;&quot;&gt;DB&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="80" x="250" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="downConsumer" parent="services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=default;image=img/lib/tech/users/user_id.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;align=center;" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Consumidor downstream&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;(ex: carteira)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="160" x="1040" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kafkaCol" parent="1" style="group;strokeColor=default;swimlaneLine=1;shadow=1;rounded=1;" value="" vertex="1">
+          <mxGeometry height="120" width="1240" x="340" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="kafkaLane" parent="kafkaCol" style="swimlane;horizontal=1;rounded=1;strokeWidth=1.5;fillColor=#f7f7f7;fontStyle=1;startSize=28;strokeColor=default;swimlaneLine=1;shadow=1;" value="Kafka" vertex="1">
+          <mxGeometry height="120" width="1240" as="geometry" />
+        </mxCell>
+        <mxCell id="topicMatches" parent="kafkaLane" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=default;image=img/lib/tech/servers/virtual_machine.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="matches.result.v1 (in)" vertex="1">
+          <mxGeometry height="50" width="180" x="20" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="topicBetPlaced" parent="kafkaLane" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=default;image=img/lib/tech/servers/virtual_machine.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="bets.placed.v1" vertex="1">
+          <mxGeometry height="50" width="180" x="240" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="topicGameCreated" parent="kafkaLane" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=default;image=img/lib/tech/servers/virtual_machine.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="games.created.v1" vertex="1">
+          <mxGeometry height="50" width="180" x="460" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="topicDlq" parent="kafkaLane" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=default;image=img/lib/tech/servers/virtual_machine.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="matches.result.dlq" vertex="1">
+          <mxGeometry height="50" width="180" x="680" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="topicPayments" parent="kafkaLane" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=default;image=img/lib/tech/servers/virtual_machine.svg;imageAlign=left;imageVerticalAlign=middle;imageWidth=24;imageHeight=24;spacingLeft=30;swimlaneLine=1;shadow=1;" value="payments.requested.v1" vertex="1">
+          <mxGeometry height="50" width="180" x="900" y="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
