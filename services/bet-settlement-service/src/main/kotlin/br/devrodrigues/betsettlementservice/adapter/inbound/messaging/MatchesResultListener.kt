@@ -13,7 +13,10 @@ class MatchesResultListener(
 
     private val logger = LoggerFactory.getLogger(MatchesResultListener::class.java)
 
-    @KafkaListener(topics = ["\${app.topics.matches-result}"], groupId = "bet-settlement-service-matches")
+    @KafkaListener(
+        topics = ["\${app.topics.matches-result}"],
+        groupId = "\${app.kafka.consumer-groups.matches-result}"
+    )
     fun onMatchesResult(event: MatchesResultEvent) {
         logger.info(
             "Processing MatchesResultEvent eventId={} matchExternalId={} status={}",

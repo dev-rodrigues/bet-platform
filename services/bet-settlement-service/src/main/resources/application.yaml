@@ -38,3 +38,6 @@ app:
     publisher-delay-ms: 2000
   settlement:
     worker-delay-ms: 2000
+  kafka:
+    consumer-groups:
+      matches-result: bet-settlement-service-matches
