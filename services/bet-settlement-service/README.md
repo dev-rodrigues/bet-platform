@@ -39,3 +39,62 @@ flowchart LR
 
 - `app.topics.payments-requested` (ex.: `payments.requested.v1`) — payload montado pelo worker com `paymentRequestId`,
   `userId`, `totalAmount`, `matchExternalId`.
+
+## Diagrama UML (Entidades JPA)
+
+```mermaid
+classDiagram
+    direction LR
+
+    class GameEntity {
+        +Long id
+        +Long externalId
+        +Instant startTime
+        +Instant betsCloseAt
+        +String status
+        +Int? homeScore
+        +Int? awayScore
+        +String homeTeam
+        +String awayTeam
+        +Instant createdAt
+        +Instant updatedAt
+    }
+
+    class BetEntity {
+        +Long id
+        +Long userId
+        +Long gameId
+        +String gameExternalId
+        +String selection
+        +BigDecimal stake
+        +BigDecimal odds
+        +String status
+        +BigDecimal? payout
+        +Instant createdAt
+        +Instant updatedAt
+    }
+
+    class SettlementJobEntity {
+        +Long id
+        +Long matchId
+        +String externalMatchId
+        +String status
+        +Int batchSize
+        +Instant createdAt
+        +Instant updatedAt
+        +String? lastError
+    }
+
+    class OutboxEventEntity {
+        +UUID id
+        +String aggregateType
+        +String aggregateId
+        +String eventType
+        +String payload
+        +String status
+        +String referenceId
+    }
+
+    GameEntity "1" <--> "0..1" SettlementJobEntity : match_id
+    GameEntity "1" <--> "0..*" BetEntity : game_id
+```
