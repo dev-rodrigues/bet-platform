@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
@@ -47,9 +48,17 @@ class MatchResultIngestionServiceTest {
         @JvmField
         val kafka: KafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"))
 
+        @Container
+        @JvmStatic
+        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine").apply {
+            withDatabaseName("betting")
+            withUsername("betting")
+            withPassword("betting")
+        }
+
         @JvmStatic
         @DynamicPropertySource
-        fun kafkaProps(registry: DynamicPropertyRegistry) {
+        fun props(registry: DynamicPropertyRegistry) {
             registry.add("spring.kafka.bootstrap-servers") { kafka.bootstrapServers }
             registry.add("resilience4j.retry.instances.matchesResultPublisher.max-attempts") { 3 }
             registry.add("resilience4j.retry.instances.matchesResultPublisher.wait-duration") { "10ms" }
@@ -57,6 +66,10 @@ class MatchResultIngestionServiceTest {
             registry.add("resilience4j.retry.instances.matchesResultPublisher.exponential-backoff-multiplier") { 2.0 }
             registry.add("resilience4j.retry.instances.matchesResultPublisher.exponential-max-wait-duration") { "100ms" }
             registry.add("resilience4j.retry.instances.matchesResultPublisher.enable-randomized-wait") { false }
+
+            registry.add("spring.datasource.url") { postgres.jdbcUrl }
+            registry.add("spring.datasource.username") { postgres.username }
+            registry.add("spring.datasource.password") { postgres.password }
         }
     }
 

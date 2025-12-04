@@ -19,6 +19,7 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.web.client.RestTemplate
 import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
@@ -31,13 +32,26 @@ class MatchResultWebhookIntegrationTest {
 
     companion object {
         @Container
-        private val kafka = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"))
+        @JvmField
+        val kafka = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"))
+
+        @Container
+        @JvmStatic
+        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine").apply {
+            withDatabaseName("betting")
+            withUsername("betting")
+            withPassword("betting")
+        }
 
         @JvmStatic
         @DynamicPropertySource
-        fun registerKafkaProps(registry: DynamicPropertyRegistry) {
+        fun props(registry: DynamicPropertyRegistry) {
             registry.add("spring.kafka.bootstrap-servers") { kafka.bootstrapServers }
             registry.add("bet.kafka.topics.matches-result") { "matches.result.v1" }
+
+            registry.add("spring.datasource.url") { postgres.jdbcUrl }
+            registry.add("spring.datasource.username") { postgres.username }
+            registry.add("spring.datasource.password") { postgres.password }
         }
     }
 

@@ -92,6 +92,25 @@ services:
     networks:
       - betting-net
 
+  postgres-result-ingestion:
+    image: postgres:16-alpine
+    container_name: betting-postgres-result-ingestion
+    environment:
+      POSTGRES_DB: result_ingestion
+      POSTGRES_USER: ingestion
+      POSTGRES_PASSWORD: ingestion
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_result_ingestion_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - betting-net
+
   bet-api-web:
     image: bet-api-service:local
     profiles: [ "apps" ]
@@ -184,10 +203,16 @@ services:
       dockerfile: services/result-ingestion-service/Dockerfile
     container_name: result-ingestion-web
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-result-ingestion:5432/result_ingestion
+      SPRING_DATASOURCE_USERNAME: ingestion
+      SPRING_DATASOURCE_PASSWORD: ingestion
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
     ports:
       - "8083:8083"
     depends_on:
+      postgres-result-ingestion:
+        condition: service_healthy
       redpanda:
         condition: service_healthy
     networks:
@@ -196,6 +221,7 @@ services:
 volumes:
   postgres_data:
   postgres_settlement_data:
+  postgres_result_ingestion_data:
   redpanda_data:
 
 networks:

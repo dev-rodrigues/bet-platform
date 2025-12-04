@@ -1,6 +1,17 @@
 spring:
   application:
     name: result-ingestion-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/result_ingestion
+    username: ingestion
+    password: ingestion
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:19092}
     producer:
