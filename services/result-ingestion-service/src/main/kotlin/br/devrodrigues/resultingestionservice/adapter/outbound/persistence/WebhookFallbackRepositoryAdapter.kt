@@ -17,7 +17,7 @@ class WebhookFallbackRepositoryAdapter(
     override fun save(event: WebhookFallbackEvent): WebhookFallbackEvent =
         jpaRepository.save(event.toEntity()).toDomain()
 
-    @Transactional(readOnly = true)
+    @Transactional
     override fun findPending(limit: Int): List<WebhookFallbackEvent> =
         jpaRepository.findPendingForUpdate(limit).map { it.toDomain() }
 }

@@ -3,6 +3,8 @@ package br.devrodrigues.resultingestionservice.adapter.outbound.persistence.jpa
 import br.devrodrigues.resultingestionservice.domain.model.WebhookFallbackEvent
 import br.devrodrigues.resultingestionservice.domain.model.WebhookFallbackStatus
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.*
 
@@ -11,6 +13,7 @@ import java.util.*
 data class WebhookFallbackEventEntity(
     @Id
     val id: UUID,
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
     val payload: String,
     @Enumerated(EnumType.STRING)

@@ -3,19 +3,18 @@ package br.devrodrigues.resultingestionservice.application.service
 import br.devrodrigues.resultingestionservice.application.model.MatchResultInput
 import br.devrodrigues.resultingestionservice.config.FlakyPublisher
 import br.devrodrigues.resultingestionservice.config.RetryTestConfig
+import br.devrodrigues.resultingestionservice.domain.port.out.WebhookFallbackRepository
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.errors.TimeoutException
 import org.apache.kafka.common.errors.TopicExistsException
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -40,6 +39,9 @@ class MatchResultIngestionServiceTest {
 
     @Autowired
     lateinit var flakyPublisher: FlakyPublisher
+
+    @Autowired
+    lateinit var webhookFallbackRepository: WebhookFallbackRepository
 
     private val topic = "matches.result.v1"
 
@@ -118,9 +120,22 @@ class MatchResultIngestionServiceTest {
             providerEventId = "prov-${UUID.randomUUID()}"
         )
 
-        assertThrows<TimeoutException> { service.ingest(input) }
+        val event = service.ingest(input)
+
         assertEquals(3, flakyPublisher.attempts.get(), "should stop at configured max attempts")
         assertTrue(flakyPublisher.published.isEmpty(), "no event should be published when all attempts fail")
+
+        val pendingFallbacks = webhookFallbackRepository.findPending(limit = 10)
+        assertTrue(pendingFallbacks.isNotEmpty(), "fallback webhook should be stored after retries exhausted")
+        assertTrue(
+            pendingFallbacks.any { it.payload.contains(input.matchExternalId) },
+            "stored payload should contain original match id"
+        )
+        assertEquals(
+            input.matchExternalId,
+            event.matchExternalId,
+            "fallback should still return generated event for the request"
+        )
     }
 
     private fun kafkaConsumer(): KafkaConsumer<String, String> {

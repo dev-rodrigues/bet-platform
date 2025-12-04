@@ -53,3 +53,7 @@ bet:
   kafka:
     topics:
       matches-result: matches.result.v1
+
+app:
+  outbox:
+    batch-size: 100
