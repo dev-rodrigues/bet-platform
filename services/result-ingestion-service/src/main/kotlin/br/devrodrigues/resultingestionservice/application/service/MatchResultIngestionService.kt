@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import io.github.resilience4j.retry.annotation.Retry
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Lazy
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,20 +20,19 @@ class MatchResultIngestionService(
     private val publisher: MatchesResultPublisher,
     private val webhookFallbackRepository: WebhookFallbackRepository,
     private val objectMapper: ObjectMapper,
-    @Lazy
-    private val self: MatchResultIngestionService
+    private val selfProvider: ObjectProvider<MatchResultIngestionService>
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun ingest(input: MatchResultInput): MatchesResultEvent {
         val event = mapper.toEvent(input)
-        self.publishWithCircuitBreaker(event)
+        self().publishWithCircuitBreaker(event)
         return event
     }
 
     @CircuitBreaker(name = "matchesResultPublisher", fallbackMethod = "storeWebhookFallback")
     fun publishWithCircuitBreaker(event: MatchesResultEvent) {
-        self.publishWithRetry(event)
+        self().publishWithRetry(event)
     }
 
     @Retry(name = "matchesResultPublisher")
@@ -65,4 +64,6 @@ class MatchResultIngestionService(
             exception
         )
     }
+
+    private fun self(): MatchResultIngestionService = selfProvider.getObject()
 }

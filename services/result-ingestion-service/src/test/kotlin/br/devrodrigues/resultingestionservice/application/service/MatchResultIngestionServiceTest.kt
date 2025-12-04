@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.KafkaContainer
@@ -32,6 +33,7 @@ import java.util.concurrent.ExecutionException
 @SpringBootTest
 @Import(RetryTestConfig::class)
 @Testcontainers
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class MatchResultIngestionServiceTest {
 
     @Autowired
@@ -136,6 +138,30 @@ class MatchResultIngestionServiceTest {
             event.matchExternalId,
             "fallback should still return generated event for the request"
         )
+    }
+
+    @Test
+    fun `should attempt publish to kafka and persist fallback when it fails`() {
+        flakyPublisher.failuresBeforeSuccess = 10
+
+        val input = MatchResultInput(
+            matchExternalId = "match-${UUID.randomUUID()}",
+            homeScore = 1,
+            awayScore = 0,
+            status = "FINISHED",
+            providerEventId = "prov-${UUID.randomUUID()}"
+        )
+
+        val before = webhookFallbackRepository.findPending(limit = 10).size
+
+        service.ingest(input)
+
+        assertEquals(3, flakyPublisher.attempts.get(), "should still try to publish to Kafka respecting retry config")
+        assertTrue(flakyPublisher.published.isEmpty(), "no event should reach Kafka when all attempts fail")
+
+        val after = webhookFallbackRepository.findPending(limit = 10)
+        assertEquals(before + 1, after.size, "fallback insert should occur after publish failure")
+        assertTrue(after.any { it.status.name == "PENDING" && it.payload.contains(input.matchExternalId) })
     }
 
     private fun kafkaConsumer(): KafkaConsumer<String, String> {
