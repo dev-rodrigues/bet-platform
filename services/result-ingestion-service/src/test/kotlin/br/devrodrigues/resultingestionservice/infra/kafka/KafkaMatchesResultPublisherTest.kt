@@ -1,6 +1,7 @@
 package br.devrodrigues.resultingestionservice.infra.kafka
 
-import br.devrodrigues.commonevents.MatchesResultEvent
+import br.devrodrigues.resultingestionservice.adapter.inbound.messaging.KafkaMatchesResultPublisherAdapter
+import br.devrodrigues.resultingestionservice.domain.model.MatchesResult
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -13,13 +14,13 @@ import java.util.concurrent.CompletableFuture
 
 class KafkaMatchesResultPublisherTest {
 
-    private val kafkaTemplate: KafkaTemplate<String, MatchesResultEvent> = mock()
+    private val kafkaTemplate: KafkaTemplate<String, MatchesResult> = mock()
     private val topic = "matches.result.v1"
-    private val publisher = KafkaMatchesResultPublisher(kafkaTemplate, topic)
+    private val publisher = KafkaMatchesResultPublisherAdapter(kafkaTemplate, topic)
 
     @Test
     fun `should send event with matchExternalId as key`() {
-        val event = MatchesResultEvent(
+        val event = MatchesResult(
             eventId = UUID.randomUUID().toString(),
             occurredAt = Instant.now(),
             emittedAt = Instant.now(),

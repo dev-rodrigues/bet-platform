@@ -1,4 +1,4 @@
-package br.devrodrigues.resultingestionservice.application.port.out
+package br.devrodrigues.resultingestionservice.domain.port.out
 
 import br.devrodrigues.resultingestionservice.domain.model.WebhookFallbackEvent
 
