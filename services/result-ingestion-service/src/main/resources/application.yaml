@@ -18,9 +18,6 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-server:
-  port: 8083
-
 management:
   endpoints:
     web:
@@ -53,7 +50,3 @@ bet:
   kafka:
     topics:
       matches-result: matches.result.v1
-
-app:
-  outbox:
-    batch-size: 100

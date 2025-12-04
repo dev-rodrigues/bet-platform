@@ -1,0 +1,14 @@
+spring:
+  main:
+    web-application-type: none
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+server:
+  port: 9093
+
+app:
+  outbox:
+    batch-size: 100
