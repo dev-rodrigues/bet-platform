@@ -6,7 +6,8 @@ Serviço responsável por receber resultados de partidas via webhook e publicar 
 flowchart LR
     Provider[[Provider]]
     Provider -->|POST JSON| API["Webhook /matches/result"]
-    API --> Topic[[Kafka topic: matches.result.v1]]
+    API -->|Retry + CB| Topic[[Kafka topic: matches.result.v1]]
+    API -->|Fallback| Fallback[(webhook_events_fallback)]
 ```
 
 ## Webhook
