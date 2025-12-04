@@ -218,6 +218,25 @@ services:
     networks:
       - betting-net
 
+  result-ingestion-worker:
+    image: result-ingestion-service:local
+    profiles: [ "apps" ]
+    container_name: result-ingestion-worker
+    environment:
+      SPRING_PROFILES_ACTIVE: worker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-result-ingestion:5432/result_ingestion
+      SPRING_DATASOURCE_USERNAME: ingestion
+      SPRING_DATASOURCE_PASSWORD: ingestion
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+    depends_on:
+      postgres-result-ingestion:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - betting-net
+
 volumes:
   postgres_data:
   postgres_settlement_data:
