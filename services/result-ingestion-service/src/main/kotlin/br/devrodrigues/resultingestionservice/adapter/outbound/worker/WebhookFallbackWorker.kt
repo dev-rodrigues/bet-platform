@@ -1,8 +1,12 @@
 package br.devrodrigues.resultingestionservice.adapter.outbound.worker
 
+import br.devrodrigues.commonevents.MatchesResultEvent
+import br.devrodrigues.resultingestionservice.application.model.MatchResultInput
 import br.devrodrigues.resultingestionservice.application.service.MatchResultIngestionService
 import br.devrodrigues.resultingestionservice.domain.model.WebhookFallbackEvent
+import br.devrodrigues.resultingestionservice.domain.model.WebhookFallbackStatus
 import br.devrodrigues.resultingestionservice.domain.port.out.WebhookFallbackRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -16,6 +20,7 @@ import java.util.*
 class WebhookFallbackWorker(
     private val matchResultIngestionService: MatchResultIngestionService,
     private val webhookFallbackRepository: WebhookFallbackRepository,
+    private val objectMapper: ObjectMapper,
     @Value("\${app.outbox.batch-size:100}")
     private val batchSize: Int
 ) {
@@ -26,20 +31,26 @@ class WebhookFallbackWorker(
     @Scheduled(fixedDelayString = "\${app.outbox.publisher-delay-ms:1000}")
     @Transactional
     fun retryFailedWebhooks() {
-        val events = webhookFallbackRepository
+        webhookFallbackRepository
             .findPending(batchSize)
-            .takeIf { it.isNotEmpty() }
-            ?.mapNotNull(::retrySafely)
+            .forEach { retrySafely(it) }
     }
 
-    private fun retrySafely(events: WebhookFallbackEvent): UUID? =
+    private fun retrySafely(event: WebhookFallbackEvent): UUID? =
         runCatching {
-//            matchResultIngestionService.ingest(input = )
-            events.id
+            val deserialized = objectMapper.readValue(event.payload, MatchesResultEvent::class.java)
+            val input = MatchResultInput(
+                matchExternalId = deserialized.matchExternalId,
+                homeScore = deserialized.homeScore,
+                awayScore = deserialized.awayScore,
+                status = deserialized.status,
+                providerEventId = deserialized.provider
+            )
+
+            matchResultIngestionService.ingest(input)
+            webhookFallbackRepository.save(event.copy(status = WebhookFallbackStatus.RESENT)).id
         }.onFailure { ex ->
-            logger.error("Erro ao reenviar webhook ${events.id}", ex)
-
+            logger.error("Erro ao reenviar webhook ${event.id}", ex)
+            webhookFallbackRepository.save(event.copy(status = WebhookFallbackStatus.PENDING)).id
         }.getOrNull()
-
-
 }
